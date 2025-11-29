@@ -3,6 +3,7 @@ from typing import Any
 import readline
 from colorama import Fore, Style, init
 import printdb.ctx
+import shutil,subprocess
 
 CHAT_COMMANDS: dict[str, Any] = {}
 IS_RUNNING = True
@@ -41,6 +42,9 @@ def change_path(new_path: str) -> None:
     os.chdir(new_path)
     CURRENT_PATH = os.getcwd()
 
+def highlight(text: str, color=Fore.RED):
+    return color+str(text)+Style.RESET_ALL
+
 def trace_error(plugin,er):
     tb = er.__traceback__
     while tb.tb_next:
@@ -70,6 +74,26 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
 def call_chat_command(command: str, args, pipe_output=None, append=False, input=None,pipe_chain=False):
     global CHAT_COMMANDS,PREVIOUS_LOGS
     PREVIOUS_LOGS.clear()
+    if os.path.exists(os.path.join(os.getcwd(),command)):
+        with open(os.path.join(os.getcwd(),command), "r") as m:
+            contents=m.read()
+            if contents.startswith("#!"):
+                interpeter = contents.splitlines()[0][2::]
+                if interpeter.startswith("/usr/bin/env"):
+                    interpeter = interpeter.replace("/usr/bin/env", "").strip()
+                    p = shutil.which(interpeter)
+                    if p:
+                        try:
+                            subprocess.run([p, os.path.join(os.getcwd(),command)])
+                        except KeyboardInterrupt:
+                            return
+                else:
+                    try:
+                        subprocess.run([interpeter, os.path.join(os.getcwd(),command)])
+                    except KeyboardInterrupt:
+                         return
+                return
+
     for cmd,v in CHAT_COMMANDS.items():
         if cmd != command:
             continue
@@ -82,7 +106,6 @@ def call_chat_command(command: str, args, pipe_output=None, append=False, input=
                 if input is not None:
                     context.input.write(input,end="")
                 v["function"](context)
-                print(f"Command:{command},pipechain:{pipe_chain}")
                 if pipe_output: # append
                     p=os.path.join(os.getcwd(), pipe_output)
                     if append:

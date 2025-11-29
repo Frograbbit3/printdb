@@ -1,5 +1,7 @@
 from printdb.api import *
 from pathlib import *
+import sys
+from colorama import Fore
 
 class Plugin():
     @chat_command("help", description="Gets command info",example="help {{command}}")
@@ -113,8 +115,13 @@ class Plugin():
             data = ctx.input.read().splitlines()
             for line in data:
                 if pattern in line:
+                    line=line.replace(pattern,highlight(pattern,color=Fore.CYAN))
                     ctx.output.write(line)
             return
 
         # No files and no stdin
         error("grep: no input")
+
+    @chat_command("exit", "Quits the terminal.", example="exit")
+    def close(ctx):
+        sys.exit(1)

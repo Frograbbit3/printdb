@@ -54,4 +54,4 @@ while IS_RUNNING:
             )
 
     except KeyboardInterrupt:
-        IS_RUNNING=False
+        pass
