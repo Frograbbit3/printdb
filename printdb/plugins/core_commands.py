@@ -7,6 +7,6 @@ class Plugin(): #self suicide plugin :3
         printdb.unload_plugins()
         printdb.load_plugins()
     
-    @chat_command("test-exception")
+    @chat_command("test-exception", description="Tests exception messages.", example="test-exception", is_debug=True)
     def test(args):
         raise ValueError("Test exception")

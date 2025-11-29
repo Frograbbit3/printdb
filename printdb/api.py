@@ -6,8 +6,9 @@ from colorama import Fore, Style, init
 CHAT_COMMANDS: dict[str, Any] = {}
 IS_RUNNING = True
 USE_ANSI_ESCAPE = True
-PREVIOUS_LOGS: str = []
+PREVIOUS_LOGS: list[str] = []
 USE_DEBUG_MODE = True # allows debug-only commands to exist
+CURRENT_PATH: str = os.getcwd()
 
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
@@ -29,6 +30,16 @@ def error(*args) -> None:
     else:
         print("".join(fix_args(args)))
 
+def expand_path(path: str) -> str:
+    return os.path.expanduser(os.path.expandvars(path))
+
+def change_path(new_path: str) -> None:
+    global CURRENT_PATH
+    if not os.path.exists(new_path):
+        raise Exception(f"Could not change to path {new_path}: Path does not exist.")
+    os.chdir(new_path)
+    CURRENT_PATH = os.getcwd()
+
 def trace_error(plugin,er):
     tb = er.__traceback__
     while tb.tb_next:
@@ -40,8 +51,12 @@ def trace_error(plugin,er):
     ty = type(er).__name__
     error(f"{ty} raised in {plugin["function"].__module__}.{plugin["function"].__name__} @ Line {lineno}\n\tFile {filename}\n\t{code} <--- [HERE]\n{er}")
 
-def chat_command(command: str, description="",example="", required_args=0):   
-    global CHAT_COMMANDS   
+def chat_command(command: str, description="",example="", required_args=0, is_debug=False):   
+    global CHAT_COMMANDS
+    if not USE_DEBUG_MODE and is_debug:
+        def ghost_decor(*args, **kwargs):
+            pass
+        return ghost_decor
     def decorator(func):
         global CHAT_COMMANDS
         if func not in CHAT_COMMANDS.items():
