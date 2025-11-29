@@ -2,6 +2,7 @@ import random,time,json,os,shlex,threading,linecache
 from typing import Any
 import readline
 from colorama import Fore, Style, init
+import printdb.ctx
 
 CHAT_COMMANDS: dict[str, Any] = {}
 IS_RUNNING = True
@@ -66,8 +67,9 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
         return wrapper
     return decorator
 
-def call_chat_command(command: str, args):
-    global CHAT_COMMANDS
+def call_chat_command(command: str, args, pipe_output=None, append=False):
+    global CHAT_COMMANDS,PREVIOUS_LOGS
+    PREVIOUS_LOGS.clear()
     for cmd,v in CHAT_COMMANDS.items():
         if cmd != command:
             continue
@@ -76,7 +78,18 @@ def call_chat_command(command: str, args):
             return
         else:
             try:
-                v["function"](args)
+                context = printdb.ctx.CommandContext(args)
+                v["function"](context)
+                if pipe_output: # append
+                    p=os.path.join(os.getcwd(), pipe_output)
+                    if append:
+                        with open(p, "a") as f:
+                            f.write(context.output.read())
+                    else:
+                        with open(p, "w") as f:
+                            f.write(context.output.read())
+                else:
+                    log(context.output.read())
             except Exception as e:
                 trace_error(v, e)
             return
