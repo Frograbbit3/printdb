@@ -7,6 +7,25 @@ printdb.api.init()
 while IS_RUNNING:
     try:
         command = input(f"({os.getcwd()})>")
+        if "|" in command:
+            parts = [p.strip() for p in command.split("|")]
+            last_output = None
+
+            for i,p in enumerate(parts):
+                args = shlex.split(p)
+                
+                # Call command with last_output as stdin
+                last_output = printdb.api.call_chat_command(
+                    args[0],
+                    args[1:],
+                    input=last_output,   # <--- THIS is the only thing you need
+                    pipe_output=None,
+                    append=False,
+                    pipe_chain=not (i == len(parts)-1)
+                )
+
+            # after pipeline, last_output is the final result
+            continue
 
         APPEND = False
         FILENAME = None

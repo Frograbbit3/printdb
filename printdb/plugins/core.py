@@ -16,19 +16,36 @@ class Plugin():
                     ctx.output.write(f"{command} : {details["description"]}. ( {details["example"]} )")
                     break
 
-    @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt", required_args=1)
+    @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")
     def cat(ctx):
-        args=ctx.args
-        fi = os.path.join(os.getcwd(), args[0])
-        if os.path.exists(fi):
-            with open(fi, "r") as file:
-                c=file.read()
-                if len(c) < 500:
-                    ctx.output.write(c)
-                else:
-                    ctx.output.write(f"{c[0:500]}... ({len(c) - 500} characters remaining)")
+        args = ctx.args
+
+        # CASE 1: files specified
+        if len(args) > 0:
+            for path in args:
+                if path == "-":  # meaning stdin
+                    if ctx.input is None:
+                        error("cat: no input provided for '-'")
+                    else:
+                        ctx.output.write(ctx.input.read())
+                    continue
+
+                full = os.path.abspath(path)
+                if not os.path.exists(full):
+                    error(f"cat: {path}: No such file")
+                    continue
+
+                with open(full, "r") as f:
+                    ctx.output.write(f.read())
+
+            return  # done
+
+        # CASE 2: no args → use stdin
+        if ctx.input:
+            ctx.output.write(ctx.input.read())
         else:
-            error("File", fi, "does not exist.")
+            error("cat: no input")
+
 
     @chat_command("ls", description="Gets the files in the current directory", example="ls")
     def ls(ctx):
@@ -70,3 +87,34 @@ class Plugin():
             error(f"{path} does not exist!")
             return
         change_path(path)
+
+    @chat_command("grep", description="Search for a pattern in input or files.", example="grep pattern file.txt", required_args=1)
+    def grep(ctx):
+        args = ctx.args
+
+        # PATTERN is always the first argument
+        pattern = args[0]
+
+        # If files provided: grep those files
+        if len(args) > 1:
+            files = args[1:]
+            for fname in files:
+                if not os.path.exists(fname):
+                    error(f"grep: {fname}: No such file")
+                    continue
+
+                with open(fname, "r") as f:
+                    for line in f.readlines():
+                        if pattern in line:
+                            ctx.output.write(line.rstrip("\n"))
+            return
+
+        if ctx.input:
+            data = ctx.input.read().splitlines()
+            for line in data:
+                if pattern in line:
+                    ctx.output.write(line)
+            return
+
+        # No files and no stdin
+        error("grep: no input")

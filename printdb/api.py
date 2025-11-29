@@ -67,7 +67,7 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
         return wrapper
     return decorator
 
-def call_chat_command(command: str, args, pipe_output=None, append=False):
+def call_chat_command(command: str, args, pipe_output=None, append=False, input=None,pipe_chain=False):
     global CHAT_COMMANDS,PREVIOUS_LOGS
     PREVIOUS_LOGS.clear()
     for cmd,v in CHAT_COMMANDS.items():
@@ -79,7 +79,10 @@ def call_chat_command(command: str, args, pipe_output=None, append=False):
         else:
             try:
                 context = printdb.ctx.CommandContext(args)
+                if input is not None:
+                    context.input.write(input,end="")
                 v["function"](context)
+                print(f"Command:{command},pipechain:{pipe_chain}")
                 if pipe_output: # append
                     p=os.path.join(os.getcwd(), pipe_output)
                     if append:
@@ -89,9 +92,11 @@ def call_chat_command(command: str, args, pipe_output=None, append=False):
                         with open(p, "w") as f:
                             f.write(context.output.read())
                 else:
-                    log(context.output.read())
+                    if not pipe_chain:
+                        log(context.output.read())
             except Exception as e:
                 trace_error(v, e)
-            return
+                return None
+            return context.output.read()
     error("Command", command, "not found!")
-    return
+    return None
