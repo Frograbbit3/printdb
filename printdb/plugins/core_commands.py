@@ -6,6 +6,9 @@ from colorama import Fore
 
 class Plugin(): #self suicide plugin :3
     configuration: printdb.configuration.Configuration = None
+    PLUGIN_NAME = "Extra Commands"
+    PLUGIN_AUTHOR = "moakdoge"
+    PLUGIN_VERSION = "1.0.0"
     @api.chat_command("reload-plugins", description="Reloads all plugins. Use this when a script is changed.", example="reload-plugins")
     def reload(self,ctx: CommandContext):
         printdb.unload_plugins()
@@ -20,7 +23,16 @@ class Plugin(): #self suicide plugin :3
             PLUGIN_DATA[data["module"]].append(data)
 
         for i,plugin in enumerate(printdb.PLUGIN_MODULES):
-            ctx.output.write(f"[{api.highlight(str(i), Fore.GREEN)}]: {api.highlight(plugin, Fore.CYAN)} (Total commands: {len(PLUGIN_DATA[plugin])})")
+            p=api.get_plugin_from_command(PLUGIN_DATA[plugin][-1])
+            lines = [
+                f"[{api.highlight(str(i), Fore.GREEN)}]: {api.highlight(p.PLUGIN_NAME, Fore.CYAN)}",
+                f"\t{api.highlight("ID:")} {plugin}",
+                f"\t{api.highlight("Author:")} {p.PLUGIN_AUTHOR}",
+                f"\t{api.highlight("Version:")} {p.PLUGIN_VERSION}",
+                f"\t{api.highlight("Total:")} {len(PLUGIN_DATA[plugin])} commands"
+
+            ]
+            ctx.output.write("\n".join(lines))
 
     @api.chat_command("test-exception", description="Tests exception messages.", example="test-exception", is_debug=True)
     def test(self,ctx: CommandContext):

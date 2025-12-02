@@ -46,6 +46,19 @@ def load_configuration():
     else:
         CONFIGURATION.command_history = []
 
+def get_plugin_stats(plugin):
+    return {
+        "name": plugin.PLUGIN_NAME,
+        "version": plugin.PLUGIN_VERSION,
+        "author": plugin.PLUGIN_AUTHOR
+    }
+
+def get_plugin_from_command(func):
+    for p in printdb.PLUGINS:
+        if p.__module__ == func["module"]:    
+            return p
+    return None    
+
 def save_configuration():
     global CONFIGURATION
     CONFIGURATION.save_save()
@@ -206,11 +219,7 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 context = printdb.ctx.CommandContext(args)
                 if input is not None:
                     context.input.write(input,end="")
-                plugin = None
-                for p in printdb.PLUGINS:
-                    if p.__module__ == v["module"]:        
-                        #meaning we have the plugin with the function obj 
-                        plugin = p
+                plugin = get_plugin_from_command(v)
                 
                 v["function"](plugin, context)
                 if output is not None: # append

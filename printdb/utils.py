@@ -21,3 +21,4 @@ def create_folder(path: str) -> None:
 def copy_file(file1: str, file2: str) -> None:
     if path_exists(file1):
         shutil.copyfile(file1,file2)
+        

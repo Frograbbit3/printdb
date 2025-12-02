@@ -4,19 +4,30 @@ import sys
 from colorama import Fore
 
 class Plugin():
-    configuration: printdb.configuration.Configuration = None
+    configuration: printdb.configuration.Configuration = None   
+    PLUGIN_NAME = "Core Plugins"
+    PLUGIN_AUTHOR = "moakdoge"
+    PLUGIN_VERSION = "1.0.0"
     @chat_command("help", description="Gets command info",example="help ls")
     def help(self,ctx):
         args=ctx.args
         if len(args) > 1:
             ctx.output.write(highlight("[ALL COMMANDS]", Fore.BLUE))
             ctx.output.write(f"Total:  {len(CHAT_COMMANDS.keys())}")
+        sorted_plugins = {}
         for command, details in CHAT_COMMANDS.items():
             if len(args) > 0:
                 if command != args[0]:
                     continue
-            ctx.output.write(f"\t{highlight(command, Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""}")
+            if details["module"] not in sorted_plugins:
+                sorted_plugins[details["module"]] = []
+            details["command"] = command
+            sorted_plugins[details["module"]].append(details)
 
+        for module, funcs in sorted_plugins.items():
+            ctx.output.write(f"{highlight(get_plugin_stats(get_plugin_from_command(funcs[0]))["name"], Fore.GREEN)}:")
+            for details in funcs:
+                ctx.output.write(f"\t{highlight(details["command"], Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""}")
     @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")
     def cat(self,ctx):
         args = ctx.args
