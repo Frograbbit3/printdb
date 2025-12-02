@@ -6,7 +6,7 @@ from colorama import Fore
 class Plugin():
     configuration: printdb.configuration.Configuration = None
     @chat_command("help", description="Gets command info",example="help ls")
-    def help(ctx):
+    def help(self,ctx):
         args=ctx.args
         if len(args) > 1:
             ctx.output.write(highlight("[ALL COMMANDS]", Fore.BLUE))
@@ -18,7 +18,7 @@ class Plugin():
             ctx.output.write(f"\t{highlight(command, Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""}")
 
     @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")
-    def cat(ctx):
+    def cat(self,ctx):
         args = ctx.args
 
         # CASE 1: files specified
@@ -49,7 +49,7 @@ class Plugin():
 
 
     @chat_command("ls", description="Gets the files in the current directory", example="ls")
-    def ls(ctx):
+    def ls(self,ctx):
         args=ctx.args
         if len(args) > 0:
             PATH = expand_path(args[0])
@@ -69,19 +69,19 @@ class Plugin():
                 ctx.output.write(f"\t{fi}{" " * (80-len(fi)-4)} [file]")
 
     @chat_command("echo", description="Echos text into output.", example="echo hello, world!")
-    def echo(ctx):
+    def echo(self,ctx):
         args=ctx.args
         fixed = " ".join(args)
         ctx.output.write(fixed)
         
 
     @chat_command("wait", description="Waits for n seconds.", example="wait 10", required_args=1)
-    def wait(ctx):
+    def wait(self,ctx):
         args=ctx.args
         time.sleep(float(args[0]))
 
     @chat_command("cd", description="Changes directory.", example="cd ..", required_args=1)
-    def cd(ctx):
+    def cd(self,ctx):
         args=ctx.args
         path = expand_path(args[0])
         if not os.path.exists(path):
@@ -90,7 +90,7 @@ class Plugin():
         change_path(path)
 
     @chat_command("grep", description="Search for a pattern in input or files.", example="grep pattern file.txt", required_args=1)
-    def grep(ctx):
+    def grep(self,ctx):
         args = ctx.args
 
         # PATTERN is always the first argument
@@ -120,5 +120,6 @@ class Plugin():
         error("grep: no input")
 
     @chat_command("exit", "Quits the terminal.", example="exit")
-    def close(ctx):
+    def close(self,ctx):
         sys.exit(1)
+

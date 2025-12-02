@@ -206,8 +206,13 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 context = printdb.ctx.CommandContext(args)
                 if input is not None:
                     context.input.write(input,end="")
-                v["function"](context)
+                plugin = None
+                for p in printdb.PLUGINS:
+                    if p.__module__ == v["module"]:        
+                        #meaning we have the plugin with the function obj 
+                        plugin = p
                 
+                v["function"](plugin, context)
                 if output is not None: # append
                     p=os.path.join(os.getcwd(), output)
                     if append:

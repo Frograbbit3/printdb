@@ -1,7 +1,7 @@
 import printdb.api
 import importlib
 import pkgutil
-from printdb import plugins, configuration
+from printdb import plugins, configuration, utils
 
 PLUGINS = []
 PLUGIN_MODULES = []
@@ -12,10 +12,10 @@ def load_plugins():
         full = f"printdb.plugins.{module_name}"
         m = importlib.import_module(full)
         PLUGIN_MODULES.append(full)
+        utils.create_folder(utils.path_join(configuration.SAVE_FOLDER, "plugins"))
         instance = m.Plugin()
-        if hasattr(instance,"configuration"):
-            instance.configuration = configuration.Configuration(f"{full}.json")
-            instance.configuration.load_save()
+        instance.configuration = configuration.Configuration(f"plugins/{full}")
+        instance.configuration.load_save()
         PLUGINS.append(instance)
 
         c += 1
