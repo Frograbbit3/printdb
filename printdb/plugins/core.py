@@ -4,19 +4,17 @@ import sys
 from colorama import Fore
 
 class Plugin():
-    @chat_command("help", description="Gets command info",example="help {{command}}")
+    @chat_command("help", description="Gets command info",example="help ls")
     def help(ctx):
         args=ctx.args
-        if len(args) < 1:
-            ctx.output.write("[ALL COMMANDS]")
+        if len(args) > 1:
+            ctx.output.write(highlight("[ALL COMMANDS]", Fore.BLUE))
             ctx.output.write(f"Total:  {len(CHAT_COMMANDS.keys())}")
-            for command, details in CHAT_COMMANDS.items():
-                ctx.output.write(f"\t{command} : {details["description"]}. ({details["example"]})")
-        else:
-            for command, details in CHAT_COMMANDS.items():
-                if command == args[0].lower():
-                    ctx.output.write(f"{command} : {details["description"]}. ({details["example"]})")
-                    break
+        for command, details in CHAT_COMMANDS.items():
+            if len(args) > 0:
+                if command != args[0]:
+                    continue
+            ctx.output.write(f"\t{highlight(command, Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""}")
 
     @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")
     def cat(ctx):

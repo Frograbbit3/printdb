@@ -33,6 +33,30 @@ def error(*args) -> None:
     else:
         print("".join(fix_args(args)))
 
+import os
+
+def get_git_branch(directory: str):
+    directory = os.path.abspath(directory)
+
+    # Walk upward until root
+    while True:
+        git_dir = os.path.join(directory, ".git")
+        head_file = os.path.join(git_dir, "HEAD")
+
+        if os.path.isfile(head_file):
+            with open(head_file, "r") as f:
+                content = f.read().strip()
+            if content.startswith("ref:"):
+                return content.split("/")[-1]
+            return None
+        
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            return None
+
+        directory = parent
+
+
 def register_alias(command:str,alias:str) -> None:
     global ALIASES
     ALIASES[alias] = command
@@ -46,6 +70,14 @@ def change_path(new_path: str) -> None:
         raise Exception(f"Could not change to path {new_path}: Path does not exist.")
     os.chdir(new_path)
     CURRENT_PATH = os.getcwd()
+
+def input_prompt()->str:
+    path = os.getcwd()
+    st = f"{highlight(path, Fore.GREEN)} "
+    gt = get_git_branch(os.getcwd())
+    if gt is not None:
+        st += f"@ {highlight(gt.strip(), Fore.RED)}"
+    return st + " >"
 
 def highlight(text: str, color=Fore.RED):
     return color+str(text)+Style.RESET_ALL
@@ -70,7 +102,7 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
     def decorator(func):
         global CHAT_COMMANDS
         if func not in CHAT_COMMANDS.items():
-            CHAT_COMMANDS[command] = {"function":func,"description":description, "example":example, "required_args":int(required_args),"module":func.__module__}
+            CHAT_COMMANDS[command] = {"function":func,"description":description, "example":example, "required_args":int(required_args),"module":func.__module__,"debug":is_debug}
         def wrapper(*args, **kwargs):
             func(*args, **kwargs)
         return wrapper

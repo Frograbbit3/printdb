@@ -9,7 +9,7 @@ printdb.api.init()
 while IS_RUNNING:
     try:
         IS_TYPING = True
-        command = input(printdb.api.highlight(f"({os.getcwd()})>", Fore.GREEN))
+        command = input(printdb.api.input_prompt())
         IS_TYPING = False
         args = shlex.split(command)
 
