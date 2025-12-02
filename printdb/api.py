@@ -3,7 +3,7 @@ from typing import Any
 import readline
 from colorama import Fore, Style, init
 import printdb.ctx
-import shutil,subprocess
+import shutil,subprocess,re
 
 CHAT_COMMANDS: dict[str, Any] = {}
 IS_RUNNING = True
@@ -123,7 +123,7 @@ def send_chat_command(command:str, append=False):
             command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append")) 
         
 
-def call_chat_command(command: str, pipe_output=None, args=[], append=False, input=None, mask_input=False, output = None):
+def call_chat_command(command: str, args=[], append=False, input=None, mask_input=False, output = None):
     global CHAT_COMMANDS,PREVIOUS_LOGS
     PREVIOUS_LOGS.clear()
     if os.path.exists(os.path.join(os.getcwd(),command)):

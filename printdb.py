@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 import printdb, printdb.api, shlex,os
-
+from colorama import Fore
 IS_RUNNING = True
 IS_TYPING = False
 
@@ -8,7 +9,7 @@ printdb.api.init()
 while IS_RUNNING:
     try:
         IS_TYPING = True
-        command = input(f"({os.getcwd()})>")
+        command = input(printdb.api.highlight(f"({os.getcwd()})>", Fore.GREEN))
         IS_TYPING = False
         args = shlex.split(command)
 
