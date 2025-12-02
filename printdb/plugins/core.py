@@ -94,8 +94,6 @@ class Plugin():
 
         # PATTERN is always the first argument
         pattern = args[0]
-
-        # If files provided: grep those files
         if len(args) > 1:
             files = args[1:]
             for fname in files:

@@ -2,6 +2,7 @@ import printdb.api as api
 import printdb
 from printdb.ctx import CommandContext
 import printdb.utils as utils
+from colorama import Fore
 
 class Plugin(): #self suicide plugin :3
     @api.chat_command("reload-plugins", description="Reloads all plugins. Use this when a script is changed.", example="reload-plugins")
@@ -9,6 +10,17 @@ class Plugin(): #self suicide plugin :3
         printdb.unload_plugins()
         printdb.load_plugins()
     
+    @api.chat_command("list-plugins", description="Gives a list of every plugin.", example="list-plugins")
+    def list_plugins(ctx: CommandContext):
+        PLUGIN_DATA = {}
+        for _, data in printdb.api.CHAT_COMMANDS.items():
+            if not data["module"] in PLUGIN_DATA:
+                PLUGIN_DATA[data["module"]] = []
+            PLUGIN_DATA[data["module"]].append(data)
+
+        for i,plugin in enumerate(printdb.PLUGIN_MODULES):
+            ctx.output.write(f"[{api.highlight(str(i), Fore.GREEN)}]: {api.highlight(plugin, Fore.CYAN)} (Total commands: {len(PLUGIN_DATA[plugin])})")
+
     @api.chat_command("test-exception", description="Tests exception messages.", example="test-exception", is_debug=True)
     def test(ctx: CommandContext):
         raise ValueError("Test exception")

@@ -37,8 +37,6 @@ import os
 
 def get_git_branch(directory: str):
     directory = os.path.abspath(directory)
-
-    # Walk upward until root
     while True:
         git_dir = os.path.join(directory, ".git")
         head_file = os.path.join(git_dir, "HEAD")
@@ -73,13 +71,15 @@ def change_path(new_path: str) -> None:
 
 def input_prompt()->str:
     path = os.getcwd()
-    st = f"{highlight(path, Fore.GREEN)} "
+    st = f"{highlight(f"({path})", Fore.GREEN)} "
     gt = get_git_branch(os.getcwd())
     if gt is not None:
-        st += f"@ {highlight(gt.strip(), Fore.RED)}"
+        st += f"{highlight("@ "+gt.strip(), Fore.BLUE)}"
     return st + " >"
 
 def highlight(text: str, color=Fore.RED):
+    if not USE_ANSI_ESCAPE:
+        return text
     return color+str(text)+Style.RESET_ALL
 
 def trace_error(plugin,er):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import printdb, printdb.api, shlex,os
+import printdb, printdb.api, shlex,os, printdb.configuration
 from colorama import Fore
 IS_RUNNING = True
 IS_TYPING = False
@@ -8,6 +8,7 @@ printdb.load_plugins()
 printdb.api.init()
 while IS_RUNNING:
     try:
+        print( printdb.configuration.get_save())
         IS_TYPING = True
         command = input(printdb.api.input_prompt())
         IS_TYPING = False
