@@ -5,6 +5,7 @@ import printdb.utils as utils
 from colorama import Fore
 
 class Plugin(): #self suicide plugin :3
+    configuration: printdb.configuration.Configuration = None
     @api.chat_command("reload-plugins", description="Reloads all plugins. Use this when a script is changed.", example="reload-plugins")
     def reload(ctx: CommandContext):
         printdb.unload_plugins()

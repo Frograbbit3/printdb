@@ -1,4 +1,4 @@
-import random,time,json,os,shlex,threading,linecache
+import random,time,json,os,shlex,threading,linecache,printdb.configuration
 from typing import Any
 import readline
 from colorama import Fore, Style, init
@@ -12,6 +12,7 @@ PREVIOUS_LOGS: list[str] = []
 USE_DEBUG_MODE = True # allows debug-only commands to exist
 CURRENT_PATH: str = os.getcwd()
 ALIASES: dict[str,str] = {}
+CONFIGURATION = None
 
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
@@ -34,6 +35,20 @@ def error(*args) -> None:
         print("".join(fix_args(args)))
 
 import os
+
+def load_configuration():
+    global CONFIGURATION
+    CONFIGURATION = printdb.configuration.Configuration()
+    CONFIGURATION.load_save()
+    if getattr(CONFIGURATION, "command_history", None) is not None:
+        for cmd in CONFIGURATION.command_history:
+            readline.add_history(cmd)
+    else:
+        CONFIGURATION.command_history = []
+
+def save_configuration():
+    global CONFIGURATION
+    CONFIGURATION.save_save()
 
 def get_git_branch(directory: str):
     directory = os.path.abspath(directory)
@@ -134,6 +149,8 @@ def split_file_names(full_command: str):
         return (full_command, None, None)
     
 def send_chat_command(command:str, append=False):
+    global CONFIGURATION
+    CONFIGURATION.command_history.append(command)
     command, file_name, mode =split_file_names(command)
     command, args = split_args(command)
     for alias,cmd2 in ALIASES.items():
@@ -141,7 +158,7 @@ def send_chat_command(command:str, append=False):
             command, new_args = split_args(cmd2)
             args = new_args + args
             break
-
+    
     pipes = split_pipes(command+" "+" ".join(args))
     if len(pipes) < 2:
         return call_chat_command(command, args=args,output=file_name, append=(mode == "append"))

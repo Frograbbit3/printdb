@@ -4,6 +4,7 @@ import sys
 from colorama import Fore
 
 class Plugin():
+    configuration: printdb.configuration.Configuration = None
     @chat_command("help", description="Gets command info",example="help ls")
     def help(ctx):
         args=ctx.args

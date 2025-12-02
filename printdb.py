@@ -6,9 +6,9 @@ IS_TYPING = False
 
 printdb.load_plugins()
 printdb.api.init()
+printdb.api.load_configuration()
 while IS_RUNNING:
     try:
-        print( printdb.configuration.get_save())
         IS_TYPING = True
         command = input(printdb.api.input_prompt())
         IS_TYPING = False
@@ -22,3 +22,4 @@ while IS_RUNNING:
             break
         else:
             continue
+printdb.api.save_configuration()
