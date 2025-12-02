@@ -11,6 +11,7 @@ USE_ANSI_ESCAPE = True
 PREVIOUS_LOGS: list[str] = []
 USE_DEBUG_MODE = True # allows debug-only commands to exist
 CURRENT_PATH: str = os.getcwd()
+ALIASES: dict[str,str] = {}
 
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
@@ -31,6 +32,11 @@ def error(*args) -> None:
         print(Fore.RED +"[ERROR]:", " ".join(fix_args(args)) + Fore.RESET)
     else:
         print("".join(fix_args(args)))
+
+def register_alias(command:str,alias:str) -> None:
+    global ALIASES
+    if not alias in ALIASES:
+        ALIASES[alias] = command
 
 def expand_path(path: str) -> str:
     return os.path.expanduser(os.path.expandvars(path))
@@ -71,9 +77,14 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
         return wrapper
     return decorator
 
-def call_chat_command(command: str, args, pipe_output=None, append=False, input=None,pipe_chain=False):
+def split_args(command: str) -> list[str]:
+    split =shlex.split(command)
+    return split[0], split[1::]
+
+def call_chat_command(command: str, pipe_output=None, append=False, input=None,pipe_chain=False):
     global CHAT_COMMANDS,PREVIOUS_LOGS
     PREVIOUS_LOGS.clear()
+    command, args = split_args(command)
     if os.path.exists(os.path.join(os.getcwd(),command)):
         with open(os.path.join(os.getcwd(),command), "r") as m:
             contents=m.read()
@@ -93,7 +104,11 @@ def call_chat_command(command: str, args, pipe_output=None, append=False, input=
                     except KeyboardInterrupt:
                          return
                 return
-
+    for alias,cmd2 in ALIASES.items():
+        if command == alias:
+            command, new_args = split_args(cmd2)
+            args = new_args + args
+            break
     for cmd,v in CHAT_COMMANDS.items():
         if cmd != command:
             continue
@@ -121,5 +136,6 @@ def call_chat_command(command: str, args, pipe_output=None, append=False, input=
                 trace_error(v, e)
                 return None
             return context.output.read()
+
     error("Command", command, "not found!")
     return None

@@ -10,3 +10,7 @@ class Plugin(): #self suicide plugin :3
     @chat_command("test-exception", description="Tests exception messages.", example="test-exception", is_debug=True)
     def test(ctx):
         raise ValueError("Test exception")
+
+    @chat_command("alias", description="Keybinds a command to another command.", example="alias close exit",required_args=2)
+    def alias(ctx):
+        register_alias(ctx.args[0], ctx.args[1])

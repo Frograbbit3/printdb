@@ -12,12 +12,11 @@ while IS_RUNNING:
             last_output = None
 
             for i,p in enumerate(parts):
-                args = shlex.split(p)
+            
                 
                 # Call command with last_output as stdin
                 last_output = printdb.api.call_chat_command(
-                    args[0],
-                    args[1:],
+                    command,
                     input=last_output,   # <--- THIS is the only thing you need
                     pipe_output=None,
                     append=False,
@@ -47,8 +46,7 @@ while IS_RUNNING:
 
         if len(args) > 0:
             printdb.api.call_chat_command(
-                args[0],
-                args[1:],
+                command,
                 pipe_output=FILENAME,    # <-- EXACT behavior you want
                 append=APPEND
             )
