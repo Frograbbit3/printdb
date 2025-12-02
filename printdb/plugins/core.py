@@ -11,11 +11,11 @@ class Plugin():
             ctx.output.write("[ALL COMMANDS]")
             ctx.output.write(f"Total:  {len(CHAT_COMMANDS.keys())}")
             for command, details in CHAT_COMMANDS.items():
-                ctx.output.write(f"\t{command} : {details["description"]}. ( {details["example"]} )")
+                ctx.output.write(f"\t{command} : {details["description"]}. ({details["example"]})")
         else:
             for command, details in CHAT_COMMANDS.items():
                 if command == args[0].lower():
-                    ctx.output.write(f"{command} : {details["description"]}. ( {details["example"]} )")
+                    ctx.output.write(f"{command} : {details["description"]}. ({details["example"]})")
                     break
 
     @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")

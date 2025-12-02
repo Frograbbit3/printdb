@@ -35,8 +35,7 @@ def error(*args) -> None:
 
 def register_alias(command:str,alias:str) -> None:
     global ALIASES
-    if not alias in ALIASES:
-        ALIASES[alias] = command
+    ALIASES[alias] = command
 
 def expand_path(path: str) -> str:
     return os.path.expanduser(os.path.expandvars(path))
@@ -81,10 +80,52 @@ def split_args(command: str) -> list[str]:
     split =shlex.split(command)
     return split[0], split[1::]
 
-def call_chat_command(command: str, pipe_output=None, append=False, input=None,pipe_chain=False):
+def split_pipes(command: str) -> list[str]:
+    if "|" in command:
+        parts = [p.strip() for p in command.split("|")]
+        return parts
+    else:
+        return [command]
+
+def split_file_names(full_command: str):
+    if ">>" in full_command:
+        MODE="append"
+        file = full_command.split(">>")[1]
+        cmd = full_command.split(">>")[0]
+        return (cmd.lstrip().rstrip(), file.lstrip().rstrip(), MODE)
+    elif ">" in full_command:
+        MODE="write"
+        file = full_command.split(">")[1]
+        cmd = full_command.split(">")[0]
+        return (cmd.lstrip().rstrip(), file.lstrip().rstrip(), MODE)
+    else:
+        return (full_command, None, None)
+    
+def send_chat_command(command:str, append=False):
+    command, file_name, mode =split_file_names(command)
+    command, args = split_args(command)
+    for alias,cmd2 in ALIASES.items():
+        if command == alias:
+            command, new_args = split_args(cmd2)
+            args = new_args + args
+            break
+
+    pipes = split_pipes(command+" "+" ".join(args))
+    if len(pipes) < 2:
+        return call_chat_command(command, args=args,output=file_name, append=(mode == "append"))
+    for i,cmd in enumerate(pipes):
+        cd, ags = split_args(cmd)
+        if i == 0:
+            command_output = call_chat_command(cd,args=ags,mask_input=True)
+        elif i < len(pipes)-1:
+            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True)
+        else:
+            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append")) 
+        
+
+def call_chat_command(command: str, pipe_output=None, args=[], append=False, input=None, mask_input=False, output = None):
     global CHAT_COMMANDS,PREVIOUS_LOGS
     PREVIOUS_LOGS.clear()
-    command, args = split_args(command)
     if os.path.exists(os.path.join(os.getcwd(),command)):
         with open(os.path.join(os.getcwd(),command), "r") as m:
             contents=m.read()
@@ -104,11 +145,7 @@ def call_chat_command(command: str, pipe_output=None, append=False, input=None,p
                     except KeyboardInterrupt:
                          return
                 return
-    for alias,cmd2 in ALIASES.items():
-        if command == alias:
-            command, new_args = split_args(cmd2)
-            args = new_args + args
-            break
+
     for cmd,v in CHAT_COMMANDS.items():
         if cmd != command:
             continue
@@ -121,8 +158,9 @@ def call_chat_command(command: str, pipe_output=None, append=False, input=None,p
                 if input is not None:
                     context.input.write(input,end="")
                 v["function"](context)
-                if pipe_output: # append
-                    p=os.path.join(os.getcwd(), pipe_output)
+                
+                if output is not None: # append
+                    p=os.path.join(os.getcwd(), output)
                     if append:
                         with open(p, "a") as f:
                             f.write(context.output.read())
@@ -130,7 +168,7 @@ def call_chat_command(command: str, pipe_output=None, append=False, input=None,p
                         with open(p, "w") as f:
                             f.write(context.output.read())
                 else:
-                    if not pipe_chain:
+                    if not mask_input:
                         log(context.output.read())
             except Exception as e:
                 trace_error(v, e)
