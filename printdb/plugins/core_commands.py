@@ -65,8 +65,19 @@ class Plugin(): #self suicide plugin :3
 
     @api.chat_command("time", description="Times the length of a command.", example="time wait 20",required_args=1)
     def time(self, ctx: CommandContext):
-        cmd = " ".join(ctx.args)
+        f=""
+        new_cmd = ctx.full_command.removeprefix("time").strip()
+        if ctx.output.redirect_file is not None:
+            m=ctx.output.redirect_mode
+            f=ctx.output.redirect_file
+            ctx.output.stop_redirect()
+            extra = f"m"
+        else:
+            extra = ""
+        cmd = new_cmd
         start = time.time()
         api.send_chat_command(cmd, False)
         end = time.time()
+        if extra != "":
+            ctx.output.start_redirect(f,"a")
         ctx.output.write(f"Command {cmd} took {end - start:.4f}s.")

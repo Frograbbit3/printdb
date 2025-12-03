@@ -119,7 +119,7 @@ def trace_error(plugin,er):
     linecache.checkcache(filename) #fuck you.
     code = linecache.getline(filename, lineno).strip()
     ty = type(er).__name__
-    error(f"{ty} raised in {plugin["function"].__module__}.{plugin["function"].__name__} @ Line {lineno}\n\tFile {filename}\n\t{code} <--- [HERE]\n{er}")
+    return f"{ty} raised in {plugin["function"].__module__}.{plugin["function"].__name__} @ Line {lineno}\n\tFile {filename}\n\t{code} <--- [HERE]\n{er}"
 
 def chat_command(command: str, description="",example="", required_args=0, is_debug=False):   
     global CHAT_COMMANDS
@@ -163,6 +163,7 @@ def split_file_names(full_command: str):
     
 def send_chat_command(command:str, append=False):
     global CONFIGURATION
+    full_command = command
     CONFIGURATION.command_history.append(command)
     command, file_name, mode =split_file_names(command)
     command, args = split_args(command)
@@ -174,18 +175,18 @@ def send_chat_command(command:str, append=False):
     
     pipes = split_pipes(command+" "+" ".join(args))
     if len(pipes) < 2:
-        return call_chat_command(command, args=args,output=file_name, append=(mode == "append"))
+        return call_chat_command(command, args=args,output=file_name, append=(mode == "append"),full_command=full_command)
     for i,cmd in enumerate(pipes):
         cd, ags = split_args(cmd)
         if i == 0:
-            command_output = call_chat_command(cd,args=ags,mask_input=True)
+            command_output = call_chat_command(cd,args=ags,mask_input=True,full_command=full_command)
         elif i < len(pipes)-1:
-            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True)
+            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True,full_command=full_command)
         else:
-            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append")) 
+            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append"),full_command=full_command) 
         
 
-def call_chat_command(command: str, args=[], append=False, input=None, mask_input=False, output = None):
+def call_chat_command(command: str, args=[], append=False, input=None, mask_input=False, output = None, full_command=None):
     global CHAT_COMMANDS,PREVIOUS_LOGS
     PREVIOUS_LOGS.clear()
     if os.path.exists(os.path.join(os.getcwd(),command)):
@@ -216,25 +217,25 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
             return
         else:
             try:
-                context = printdb.ctx.CommandContext(args)
+                context = printdb.ctx.CommandContext(args,full_command)
                 if input is not None:
                     context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
-                if output is not None and not mask_input:
+                if output is not None or mask_input:
                     context.output.flush_enabled = False
-                if output is not None:
+                if output is not None :
                     context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
 
                 try:
                     v["function"](plugin, context)
                 except KeyboardInterrupt:
                     pass
-                if output is not None:
+                if output is not None and not mask_input:
                     context.output.stop_redirect()
 
                 
             except Exception as e:
-                trace_error(v, e)
+                context.output.write(highlight(trace_error(v, e)))
                 return None
             return context.output.read()
 

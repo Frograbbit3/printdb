@@ -1,10 +1,4 @@
-Took: 20.2ms
-Took: 26.5ms
-Took: 20.4ms
-Took: 22.2ms
-Took: 23.4ms
-Took: 31.0ms
-Took: 32.2ms
-Took: 22.0ms
-Took: 25.1ms
-Took: 21.9ms
+[31mValueError raised in printdb.plugins.core_commands.test @ Line 40
+	File /home/moakdoge/Desktop/print/printdb/plugins/core_commands.py
+	raise ValueError("Test exception") <--- [HERE]
+Test exception[0m

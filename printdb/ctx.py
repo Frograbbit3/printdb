@@ -31,18 +31,20 @@ class StreamingLogs:
             return
 
         # Otherwise write to terminal
-        print(text, end="", flush=self.flush_enabled)
+        if self.flush_enabled:
+            print(text, end=end)
         self.logs.append(text)
 
     def read(self):
         return "".join(self.logs)
 
 class CommandContext:
-    def __init__(self, args:list[str]):
+    def __init__(self, args:list[str], full_command:str):
         self.args = args
         self.input = StreamingLogs()
         self.output = StreamingLogs()
         self.env = os.getcwd()
+        self.full_command = full_command
     def confirm(self, message:str, preferred=True) -> bool:
         option1 = "Y" if preferred else "y"
         option2 = "n" if preferred else "N"
