@@ -3,6 +3,7 @@ import printdb
 from printdb.ctx import CommandContext
 import printdb.utils as utils
 import printdb.configuration as conf
+import printdb.cross_platform.processes as ProcessManager
 import time
 from colorama import Fore
 
@@ -31,3 +32,10 @@ class Plugin(): #self suicide plugin :3
     @api.chat_command("open-config-folder", description="Opens the configuration folder inside your default file explorer.", example="open-config-folder", required_args=0, is_debug=True)
     def open_config_folder(self, ctx: CommandContext):
         utils.open_file(conf.SAVE_FOLDER)
+
+    @api.chat_command("run", description="Runs an executable.", example="run kcalc", required_args=1, is_debug=True)
+    def run(self, ctx:CommandContext):
+        m = ProcessManager.Process(ctx.args[0], ctx.args[1::])
+        m.run()
+        m.block()
+        print(m.return_code)
