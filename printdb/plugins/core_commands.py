@@ -2,6 +2,7 @@ import printdb.api as api
 import printdb
 from printdb.ctx import CommandContext
 import printdb.utils as utils
+import time
 from colorama import Fore
 
 class Plugin(): #self suicide plugin :3
@@ -61,3 +62,11 @@ class Plugin(): #self suicide plugin :3
     def load_data(self, ctx: CommandContext):
         self.configuration.load_save()
         ctx.output.write(self.configuration._data)
+
+    @api.chat_command("time", description="Times the length of a command.", example="time wait 20",required_args=1)
+    def time(self, ctx: CommandContext):
+        cmd = " ".join(ctx.args)
+        start = time.time()
+        api.send_chat_command(cmd, False)
+        end = time.time()
+        ctx.output.write(f"Command {cmd} took {end - start:.4f}s.")
