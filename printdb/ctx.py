@@ -32,7 +32,7 @@ class StreamingLogs:
 
         # Otherwise write to terminal
         if self.flush_enabled:
-            print(text, end=end)
+            print(text,end="")
         self.logs.append(text)
 
     def read(self):
