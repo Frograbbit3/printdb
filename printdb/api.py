@@ -220,19 +220,19 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 if input is not None:
                     context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
+                if output is not None and not mask_input:
+                    context.output.flush_enabled = False
+                if output is not None:
+                    context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
+
+                try:
+                    v["function"](plugin, context)
+                except KeyboardInterrupt:
+                    pass
+                if output is not None:
+                    context.output.stop_redirect()
+
                 
-                v["function"](plugin, context)
-                if output is not None: # append
-                    p=os.path.join(os.getcwd(), output)
-                    if append:
-                        with open(p, "a") as f:
-                            f.write(context.output.read())
-                    else:
-                        with open(p, "w") as f:
-                            f.write(context.output.read())
-                else:
-                    if not mask_input:
-                        log(context.output.read())
             except Exception as e:
                 trace_error(v, e)
                 return None
