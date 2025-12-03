@@ -45,4 +45,4 @@ class Configuration:
         if name in self._data:
             return self._data[name]
 
-        raise AttributeError(name)
+        return None

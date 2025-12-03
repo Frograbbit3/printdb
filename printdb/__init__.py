@@ -12,6 +12,7 @@ def load_plugins():
         full = f"printdb.plugins.{module_name}"
         m = importlib.import_module(full)
         PLUGIN_MODULES.append(full)
+        utils.create_folder(configuration.SAVE_FOLDER)
         utils.create_folder(utils.path_join(configuration.SAVE_FOLDER, "plugins"))
         instance = m.Plugin()
         instance.configuration = configuration.Configuration(f"plugins/{full}")

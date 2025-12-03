@@ -1,4 +1,4 @@
-import re, os, shutil
+import re, os, shutil, platform, subprocess
 
 ALIAS_NAME = re.compile(r'^[A-Za-z0-9_-]+$')
 
@@ -21,4 +21,12 @@ def create_folder(path: str) -> None:
 def copy_file(file1: str, file2: str) -> None:
     if path_exists(file1):
         shutil.copyfile(file1,file2)
-        
+
+def open_file(file1: str) -> None:
+    if path_exists(file1):
+        if platform.system() == "Windows":
+            os.startfile(file1)  # Windows built-in
+        elif platform.system() == "Darwin":  # macOS
+            subprocess.run(["open", file1])
+        else:  # Linux
+            subprocess.run(["xdg-open", file1])

@@ -2,6 +2,7 @@ import printdb.api as api
 import printdb
 from printdb.ctx import CommandContext
 import printdb.utils as utils
+import printdb.configuration as conf
 import time
 from colorama import Fore
 
@@ -27,4 +28,6 @@ class Plugin(): #self suicide plugin :3
         self.configuration.load_save()
         ctx.output.write(self.configuration._data)
 
-    
+    @api.chat_command("open-config-folder", description="Opens the configuration folder inside your default file explorer.", example="open-config-folder", required_args=0, is_debug=True)
+    def open_config_folder(self, ctx: CommandContext):
+        utils.open_file(conf.SAVE_FOLDER)

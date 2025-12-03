@@ -39,7 +39,7 @@ class Plugin(): #self suicide plugin :3
     def test(self,ctx: CommandContext):
         raise ValueError("Test exception")
 
-    @api.chat_command("alias", description="Keybinds a command to another command.", example='alias exit "close"',required_args=2)
+    @api.chat_command("alias", description="Keybinds a command to another command.", example='alias close exit',required_args=2)
     def alias(self,ctx: CommandContext):
         if not utils.validate_alias(ctx.args[0]):
             ctx.output.write(api.highlight("Please only use alphanumeric characters in your alias."))
@@ -52,6 +52,13 @@ class Plugin(): #self suicide plugin :3
         api.register_alias(ctx.args[1], ctx.args[0])
         ctx.output.write("Wrote alias successfully.")
     
+    @api.chat_command("list-alias", description="Lists all the aliases currently applied.", example="aliases")
+    def list_aliases(self, ctx:CommandContext):
+        i=0
+        for alias, val in api.ALIASES.items():
+            i+=1
+            ctx.output.write(f"[{api.highlight(str(i), Fore.CYAN)}]: {alias} -> {val}")
+
     @api.chat_command("save-data", description="Saves the data to the local plugin save file.", example="save-data key value", required_args=2, is_debug=True)
     def save_data(self, ctx: CommandContext):
         setattr(self.configuration, ctx.args[0],ctx.args[1])

@@ -13,6 +13,7 @@ USE_DEBUG_MODE = True # allows debug-only commands to exist
 CURRENT_PATH: str = os.getcwd()
 ALIASES: dict[str,str] = {}
 CONFIGURATION = None
+RAW_COMMANDS: list[str] = []
 
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
@@ -37,7 +38,7 @@ def error(*args) -> None:
 import os
 
 def load_configuration():
-    global CONFIGURATION
+    global CONFIGURATION,ALIASES
     CONFIGURATION = printdb.configuration.Configuration()
     CONFIGURATION.load_save()
     if getattr(CONFIGURATION, "command_history", None) is not None:
@@ -45,6 +46,18 @@ def load_configuration():
             readline.add_history(cmd)
     else:
         CONFIGURATION.command_history = []
+    if getattr(CONFIGURATION, "last_path", None) is not None:
+        change_path(CONFIGURATION.last_path)
+    else:
+        CONFIGURATION.last_path = os.path.expanduser("~")
+    if CONFIGURATION.aliases is None:
+        CONFIGURATION.aliases = []
+    else:
+        ALIASES = CONFIGURATION.aliases
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
+
+
 
 def get_plugin_stats(plugin):
     return {
@@ -84,8 +97,21 @@ def get_git_branch(directory: str):
 
 
 def register_alias(command:str,alias:str) -> None:
-    global ALIASES
+    global ALIASES,CONFIGURATION
     ALIASES[alias] = command
+    CONFIGURATION.aliases = ALIASES.copy()
+
+def completer(text, state):
+    global RAW_COMMANDS
+    commands = RAW_COMMANDS
+        
+    matches = [cmd for cmd in commands if cmd.startswith(text)]
+        
+    try:
+        return matches[state]
+    except IndexError:
+        return None
+
 
 def expand_path(path: str) -> str:
     return os.path.expanduser(os.path.expandvars(path))
@@ -96,6 +122,7 @@ def change_path(new_path: str) -> None:
         raise Exception(f"Could not change to path {new_path}: Path does not exist.")
     os.chdir(new_path)
     CURRENT_PATH = os.getcwd()
+    CONFIGURATION.last_path = CURRENT_PATH
 
 def input_prompt()->str:
     path = os.getcwd()
@@ -122,7 +149,7 @@ def trace_error(plugin,er):
     return f"{ty} raised in {plugin["function"].__module__}.{plugin["function"].__name__} @ Line {lineno}\n\tFile {filename}\n\t{code} <--- [HERE]\n{er}"
 
 def chat_command(command: str, description="",example="", required_args=0, is_debug=False):   
-    global CHAT_COMMANDS
+    global CHAT_COMMANDS, RAW_COMMANDS
     if not USE_DEBUG_MODE and is_debug:
         def ghost_decor(*args, **kwargs):
             pass
@@ -131,6 +158,7 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
         global CHAT_COMMANDS
         if func not in CHAT_COMMANDS.items():
             CHAT_COMMANDS[command] = {"function":func,"description":description, "example":example, "required_args":int(required_args),"module":func.__module__,"debug":is_debug}
+            RAW_COMMANDS.append(command)
         def wrapper(*args, **kwargs):
             func(*args, **kwargs)
         return wrapper
