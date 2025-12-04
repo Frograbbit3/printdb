@@ -13,6 +13,7 @@ USE_DEBUG_MODE = True # allows debug-only commands to exist
 CURRENT_PATH: str = os.getcwd()
 ALIASES: dict[str,str] = {}
 CONFIGURATION = None
+SANDBOXED_MODE = True
 RAW_COMMANDS: list[str] = []
 
 def fix_args(args)->list[str]:
@@ -60,6 +61,12 @@ def load_configuration():
 
 
 def get_plugin_stats(plugin):
+    if plugin is None:
+        return {
+            "name": "[UNKNOWN]",
+            "version": "[UNKNOWN]",
+            "author": "[UNKNOWN]"
+        }
     return {
         "name": plugin.PLUGIN_NAME,
         "version": plugin.PLUGIN_VERSION,
@@ -148,7 +155,7 @@ def trace_error(plugin,er):
     ty = type(er).__name__
     return f"{ty} raised in {plugin["function"].__module__}.{plugin["function"].__name__} @ Line {lineno}\n\tFile {filename}\n\t{code} <--- [HERE]\n{er}"
 
-def chat_command(command: str, description="",example="", required_args=0, is_debug=False):   
+def chat_command(command: str, description="",example="", required_args=0, is_debug=False, is_hidden=False, is_sandboxed=False):   
     global CHAT_COMMANDS, RAW_COMMANDS
     if not USE_DEBUG_MODE and is_debug:
         def ghost_decor(*args, **kwargs):
@@ -157,7 +164,7 @@ def chat_command(command: str, description="",example="", required_args=0, is_de
     def decorator(func):
         global CHAT_COMMANDS
         if func not in CHAT_COMMANDS.items():
-            CHAT_COMMANDS[command] = {"function":func,"description":description, "example":example, "required_args":int(required_args),"module":func.__module__,"debug":is_debug}
+            CHAT_COMMANDS[command] = {"hidden":is_hidden, "sandboxed": is_sandboxed, "function":func,"description":description, "example":example, "required_args":int(required_args),"module":func.__module__,"debug":is_debug}
             RAW_COMMANDS.append(command)
         def wrapper(*args, **kwargs):
             func(*args, **kwargs)
@@ -245,6 +252,9 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
             return
         else:
             try:
+                if v["sandboxed"] and SANDBOXED_MODE:
+                    error("This command is disabled due to sandbox mode.")
+                    return ""
                 context = printdb.ctx.CommandContext(args,full_command)
                 if input is not None:
                     context.input.write(input,end="")

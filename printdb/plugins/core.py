@@ -19,15 +19,22 @@ class Plugin():
             if len(args) > 0:
                 if command != args[0]:
                     continue
+                if details["hidden"] == True:
+                    continue
             if details["module"] not in sorted_plugins:
                 sorted_plugins[details["module"]] = []
             details["command"] = command
             sorted_plugins[details["module"]].append(details)
 
         for module, funcs in sorted_plugins.items():
-            ctx.output.write(f"{highlight(get_plugin_stats(get_plugin_from_command(funcs[0]))["name"], Fore.GREEN)}:")
+            p=get_plugin_from_command(funcs[0])
+            if getattr(p, "HIDDEN", False):
+                continue
+            ctx.output.write(f"{highlight(get_plugin_stats(p)["name"], Fore.GREEN)}:")
             for details in funcs:
-                ctx.output.write(f"\t{highlight(details["command"], Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""}")
+                if details["hidden"] == True:
+                    continue
+                ctx.output.write(f"\t{highlight(details["command"], Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""} {highlight("[SANDBOXED]", Fore.YELLOW) if details["sandboxed"] else ""}")
     @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")
     def cat(self,ctx):
         args = ctx.args

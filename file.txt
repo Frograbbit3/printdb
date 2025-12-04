@@ -1,4 +1,4 @@
 [31mValueError raised in printdb.plugins.core_commands.test @ Line 40
 	File /home/moakdoge/Desktop/print/printdb/plugins/core_commands.py
-	raise ValueError("Test exception") <--- [HERE]
+	raise ValueError("hey this isnt having an error, here's proof")
 Test exception[0m
