@@ -46,7 +46,7 @@ class Plugin(): #self suicide plugin :3
     def open_config_folder(self, ctx: CommandContext):
         utils.open_file(conf.SAVE_FOLDER)
 
-    @api.chat_command("run", description="Runs an executable. Supports args", example="run kcalc", required_args=1, is_debug=True)
+    @api.chat_command("run", description="Runs an executable. Supports args", example="run kcalc", required_args=1, is_debug=True, is_sandboxed=True)
     def run(self, ctx:CommandContext):
         m = ProcessManager.Process(ctx.args[0], ctx.args[1::])
         m.run()

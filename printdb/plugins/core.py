@@ -21,6 +21,8 @@ class Plugin():
                     continue
                 if details["hidden"] == True:
                     continue
+            if getattr(get_plugin_from_command(details), "HIDDEN", False):
+                continue
             if details["module"] not in sorted_plugins:
                 sorted_plugins[details["module"]] = []
             details["command"] = command

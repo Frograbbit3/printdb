@@ -7,6 +7,8 @@ class Plugin:
     PLUGIN_NAME = "[CORE]"
     PLUGIN_VERSION = "C.O.R.E"
     PLUGIN_AUTHOR = "printdb"
+    HIDDEN=True
+
     
     @api.chat_command("unload-plugins", description="Goodbye, world! Unloads all loaded plugins. (You can recover by calling load-plugins!)", example="unload-plugins", is_debug=True)
     def suicide(a,b: CommandContext): #eheh
