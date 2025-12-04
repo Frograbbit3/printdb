@@ -48,7 +48,7 @@ def load_plugins():
         instance = cls()
         instance.configuration = configuration.Configuration(f"plugins/{name}.json")
         instance.configuration.load_save()
-
+        instance.on_load()
         PLUGINS.append(instance)
 
 
@@ -71,6 +71,7 @@ def unload_plugins(a=None,b=None):
             continue
         if module in sys.modules:
             del sys.modules[module]
+    
     PLUGINS = [p for p in PLUGINS if p.__class__.__module__ in CORE_PLUGINS]
     PLUGIN_MODULES = [p for p in PLUGIN_MODULES if p in CORE_PLUGINS]
     

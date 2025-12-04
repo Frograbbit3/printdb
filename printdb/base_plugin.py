@@ -4,9 +4,9 @@ import printdb.configuration
 @dataclass(frozen=True)
 class PluginMeta:
     name: str = "[UKNOWN]"
-    author: str = "[UNKNOWN]"
-    version: str = "[UNKNOWN]"
-    description: str = ""
+    author: str = "[N/A]"
+    version: str = "[N/A]"
+    description: str = "[N/A]"
     hidden: bool = False
 
 class BasePlugin:
@@ -15,6 +15,4 @@ class BasePlugin:
     def __init__(self):
         pass
     def on_load(self):
-        pass
-    def on_unload(self):
         pass

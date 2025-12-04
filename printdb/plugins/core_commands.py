@@ -1,13 +1,9 @@
-import printdb.api as api
-import printdb.base_plugin as base
-import printdb
-from printdb.ctx import CommandContext
-import printdb.utils as utils
+from printdb.plugin_api import *
 import time
-from colorama import Fore
 
 
-@printdb.plugin_manager.register_plugin()
+
+@register_plugin()
 class Plugin(base.BasePlugin): #self suicide plugin :3
     META = base.PluginMeta(
         "Extra",
@@ -17,28 +13,31 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
     )
     @api.chat_command("reload-plugins", description="Reloads all plugins. Use this when a script is changed.", example="reload-plugins")
     def reload(self,ctx: CommandContext):
-        printdb.unload_plugins()
-        printdb.load_plugins()
+        plugin_manager.unload_plugins()
+        plugin_manager.load_plugins()
     
     @api.chat_command("list-plugins", description="Gives a list of every plugin.", example="list-plugins")
     def list_plugins(self,ctx: CommandContext):
         PLUGIN_DATA = {}
-        for _, data in printdb.api.CHAT_COMMANDS.items():
+        for _, data in api.CHAT_COMMANDS.items():
             if not data["module"] in PLUGIN_DATA:
                 PLUGIN_DATA[data["module"]] = []
             PLUGIN_DATA[data["module"]].append(data)
 
         i=0
-        for k,plugin in enumerate(printdb.PLUGIN_MODULES):
-            p=api.get_plugin_from_command(PLUGIN_DATA[plugin][-1])
-            if getattr(p, "HIDDEN", False):
+        for k,plugin in enumerate(plugin_manager.PLUGINS):
+            p=plugin
+            commands = PLUGIN_DATA[plugin.__module__]
+            if getattr(p.META, "HIDDEN", False):
                 continue
             lines = [
-                f"[{api.highlight(str(i+1), Fore.GREEN)}]: {api.highlight(p.PLUGIN_NAME, Fore.CYAN)}",
+                f"[{api.highlight(str(i+1), Fore.GREEN)}]: {api.highlight(p.META.name, Fore.CYAN)}",
                 f"\t{api.highlight("ID:")} {plugin}",
-                f"\t{api.highlight("Author:")} {p.PLUGIN_AUTHOR}",
-                f"\t{api.highlight("Version:")} {p.PLUGIN_VERSION}",
-                f"\t{api.highlight("Total:")} {len(PLUGIN_DATA[plugin])} commands"
+                f"\t{api.highlight("Author:")} {p.META.author}",
+                f"\t{api.highlight("Version:")} {p.META.version}",
+                f"\t{api.highlight("Total:")} {len(commands)} commands",
+                f"\t{api.highlight("Description:")} {p.META.description}"
+                
 
             ]
             ctx.output.write("\n".join(lines))

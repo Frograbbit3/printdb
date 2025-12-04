@@ -13,7 +13,8 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
     META = base.PluginMeta(
         "Debug",
         "moakdoge",
-        "de.bu.gg.er"
+        "de.bu.gg.er",
+        "Plugins to help debug the engine. These are normally hidden when debug is off."
     )
 
 
