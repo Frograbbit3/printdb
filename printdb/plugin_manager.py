@@ -52,26 +52,37 @@ def load_plugins():
         PLUGINS.append(instance)
 
 
+def unload_plugin(plugin_modname: str):
+    global PLUGINS, PLUGIN_MODULES, REGISTERED_PLUGINS
+    from printdb.api import CHAT_COMMANDS
+    import sys
 
-def unload_plugins(a=None,b=None):
+    if plugin_modname in CORE_PLUGINS:
+        return
+    
+    for key, data in list(CHAT_COMMANDS.items()):
+        if data["module"] == plugin_modname:
+            del CHAT_COMMANDS[key]
+
+    for mod in list(sys.modules.keys()):
+        if mod == plugin_modname or mod.startswith(plugin_modname + "."):
+            del sys.modules[mod]
+
+    PLUGINS = [p for p in PLUGINS if p.__class__.__module__ != plugin_modname]
+
+    PLUGIN_MODULES = [m for m in PLUGIN_MODULES if m != plugin_modname]
+
+
+    REGISTERED_PLUGINS = [
+        cls for cls in REGISTERED_PLUGINS
+        if cls.__module__ != plugin_modname
+    ]
+
+def unload_plugins():
     global PLUGINS, PLUGIN_MODULES
     from printdb.api import CHAT_COMMANDS
 
+    for mod in PLUGIN_MODULES:
+        unload_plugin(mod)
 
-    for key in list(CHAT_COMMANDS.keys()):
-        module = CHAT_COMMANDS[key].get("module")
-        if module in CORE_PLUGINS:
-            continue
-        if module in PLUGIN_MODULES:
-            del CHAT_COMMANDS[key]
-
-    import sys
-    for module in PLUGIN_MODULES:
-        if module in CORE_PLUGINS:
-            continue
-        if module in sys.modules:
-            del sys.modules[module]
-    
-    PLUGINS = [p for p in PLUGINS if p.__class__.__module__ in CORE_PLUGINS]
-    PLUGIN_MODULES = [p for p in PLUGIN_MODULES if p in CORE_PLUGINS]
     
