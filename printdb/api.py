@@ -41,7 +41,7 @@ def error(*args) -> None:
 import os
 
 def load_configuration():
-    global CONFIGURATION,ALIASES
+    global CONFIGURATION,ALIASES,USE_DEBUG_MODE,SANDBOXED_MODE
     CONFIGURATION = printdb.configuration.Configuration()
     CONFIGURATION.load_save()
     if getattr(CONFIGURATION, "command_history", None) is not None:
@@ -57,6 +57,15 @@ def load_configuration():
         CONFIGURATION.aliases = []
     else:
         ALIASES = CONFIGURATION.aliases
+    if CONFIGURATION.debug is None:
+        CONFIGURATION.debug = USE_DEBUG_MODE
+    else:
+        USE_DEBUG_MODE = CONFIGURATION.debug
+    if CONFIGURATION.sandboxed is None:
+        CONFIGURATION.sandboxed=SANDBOXED_MODE
+    else:
+        SANDBOXED_MODE=CONFIGURATION.sandboxed
+    
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
 

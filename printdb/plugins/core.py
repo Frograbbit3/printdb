@@ -4,7 +4,8 @@ from colorama import Fore
 
 import printdb
 from printdb.api import *
-from printdb.plugin_manager import register_plugin
+from printdb.plugin_api import *
+from datetime import datetime
 @register_plugin()
 class Plugin(printdb.base_plugin.BasePlugin):
     META = printdb.base_plugin.PluginMeta(
@@ -13,6 +14,30 @@ class Plugin(printdb.base_plugin.BasePlugin):
         "1.0.0",
         "The core commands."
     )
+    @chat_command("welcome", description="Welcomes the user.", example="welcome")
+    def welcome(self, ctx: CommandContext):
+        lines = [
+            f"Welcome, {highlight(username())}!",
+            f"{highlight(datetime.now().strftime("Today is %Y/%m/%d and it's currently %H:%M:%S"), Fore.CYAN)}",
+        ]
+        real_lines = []
+        max_len = 0
+        ANSI = re.compile(r'\x1b\[[0-9;]*m')
+
+
+        for line in lines:
+            if max_len < len(line):
+                max_len = len(line)
+        max_len=80
+        for l in lines:
+            f=ANSI.sub("", l)
+            if len(f) % 2 != 0:
+                l+=" "
+            SPACES = max_len - len(f)
+            real_lines.append(f"||{" " * (SPACES//2)}{l}{" " * (SPACES//2)}||")
+
+        ctx.output.write("\n".join(real_lines))
+
     @chat_command("help", description="Gets command info",example="help ls")
     def help(self,ctx):
         args=ctx.args

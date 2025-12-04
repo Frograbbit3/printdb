@@ -4,6 +4,7 @@ IS_RUNNING = True
 IS_TYPING = False
 
 printdb.init()
+printdb.api.send_chat_command("welcome")
 while IS_RUNNING:
     try:
         IS_TYPING = True
