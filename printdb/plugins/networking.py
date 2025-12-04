@@ -3,14 +3,18 @@ import printdb
 from printdb.ctx import CommandContext
 import printdb.utils as utils
 from colorama import Fore
+import printdb.base_plugin as base
 import platform
 import subprocess,re, time
 
-class Plugin(): #networking
-    configuration: printdb.configuration.Configuration = None
-    PLUGIN_NAME = "Networking"
-    PLUGIN_AUTHOR = "moakdoge"
-    PLUGIN_VERSION = "1.0.0"
+
+@printdb.plugin_manager.register_plugin()
+class Plugin(base.BasePlugin): #self suicide plugin :3
+    META = base.PluginMeta(
+        "Networking",
+        "moakdoge",
+        "1.0.0"
+    )
     
     @api.chat_command("ping", "Sends a ping request to a certain website. Goes until Control + C is pressed.", example="ping google.com", required_args=1)
     def ping(self,ctx:CommandContext):

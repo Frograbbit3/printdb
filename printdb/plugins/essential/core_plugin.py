@@ -1,14 +1,18 @@
 from colorama import Fore
 import printdb
 import printdb.api as api
+import printdb.base_plugin as base
 from printdb.ctx import CommandContext
 
-class Plugin:
-    PLUGIN_NAME = "[CORE]"
-    PLUGIN_VERSION = "C.O.R.E"
-    PLUGIN_AUTHOR = "printdb"
-    HIDDEN=True
-
+@printdb.plugin_manager.register_plugin()
+class Plugin(base.BasePlugin):
+    META = base.PluginMeta(
+        "Essential Commands",
+        "moakdoge",
+        "1.0.0",
+        "A plugin with strictly reload-plugin commands. (NOTE - THIS CANNOT BE UNLOADED!)",
+        hidden=True
+    )
     
     @api.chat_command("unload-plugins", description="Goodbye, world! Unloads all loaded plugins. (You can recover by calling load-plugins!)", example="unload-plugins", is_debug=True)
     def suicide(a,b: CommandContext): #eheh

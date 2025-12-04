@@ -4,14 +4,18 @@ from printdb.ctx import CommandContext
 import printdb.utils as utils
 import printdb.configuration as conf
 import printdb.cross_platform.processes as ProcessManager
+import printdb.base_plugin as base
 import time
 from colorama import Fore
 
-class Plugin(): #self suicide plugin :3
-    configuration: printdb.configuration.Configuration = None
-    PLUGIN_NAME = "Debug Plugins"
-    PLUGIN_AUTHOR = "moakdoge"
-    PLUGIN_VERSION = "de.bu.gg.er"
+@printdb.plugin_manager.register_plugin()
+class Plugin(base.BasePlugin): #self suicide plugin :3
+    META = base.PluginMeta(
+        "Debug",
+        "moakdoge",
+        "de.bu.gg.er"
+    )
+
 
     def __init__(self):
         pass

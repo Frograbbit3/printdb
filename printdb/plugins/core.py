@@ -1,13 +1,18 @@
-from printdb.api import *
 from pathlib import *
 import sys
 from colorama import Fore
 
-class Plugin():
-    configuration: printdb.configuration.Configuration = None   
-    PLUGIN_NAME = "Core Plugins"
-    PLUGIN_AUTHOR = "moakdoge"
-    PLUGIN_VERSION = "1.0.0"
+import printdb
+from printdb.api import *
+from printdb.plugin_manager import register_plugin
+@register_plugin()
+class Plugin(printdb.base_plugin.BasePlugin):
+    META = printdb.base_plugin.PluginMeta(
+        "Core",
+        "moakdoge",
+        "1.0.0",
+        "The core commands."
+    )
     @chat_command("help", description="Gets command info",example="help ls")
     def help(self,ctx):
         args=ctx.args
@@ -142,4 +147,5 @@ class Plugin():
     @chat_command("exit", "Quits the terminal.", example="exit")
     def close(self,ctx):
         sys.exit(1)
+
 

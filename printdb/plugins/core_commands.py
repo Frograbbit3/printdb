@@ -1,15 +1,20 @@
 import printdb.api as api
+import printdb.base_plugin as base
 import printdb
 from printdb.ctx import CommandContext
 import printdb.utils as utils
 import time
 from colorama import Fore
 
-class Plugin(): #self suicide plugin :3
-    configuration: printdb.configuration.Configuration = None
-    PLUGIN_NAME = "Extra Commands"
-    PLUGIN_AUTHOR = "moakdoge"
-    PLUGIN_VERSION = "1.0.0"
+
+@printdb.plugin_manager.register_plugin()
+class Plugin(base.BasePlugin): #self suicide plugin :3
+    META = base.PluginMeta(
+        "Extra",
+        "moakdoge",
+        "1.0.0",
+        "Misc plugins that don't matter very much."
+    )
     @api.chat_command("reload-plugins", description="Reloads all plugins. Use this when a script is changed.", example="reload-plugins")
     def reload(self,ctx: CommandContext):
         printdb.unload_plugins()

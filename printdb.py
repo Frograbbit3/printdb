@@ -4,7 +4,7 @@ from colorama import Fore
 IS_RUNNING = True
 IS_TYPING = False
 
-printdb.load_plugins()
+printdb.plugin_manager.load_plugins()
 printdb.api.init()
 printdb.api.load_configuration()
 while IS_RUNNING:

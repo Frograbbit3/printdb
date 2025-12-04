@@ -1,8 +1,10 @@
-import random,time,json,os,shlex,threading,linecache,printdb.configuration
+import random,time,json,os,shlex,threading,linecache
 from typing import Any
 import readline
 from colorama import Fore, Style, init
 import printdb.ctx
+import printdb.configuration
+import printdb.plugin_manager
 import shutil,subprocess,re
 
 CHAT_COMMANDS: dict[str, Any] = {}
@@ -67,6 +69,19 @@ def get_plugin_stats(plugin):
             "version": "[UNKNOWN]",
             "author": "[UNKNOWN]"
         }
+    if getattr(plugin, "META", False):
+        return {
+            "name": plugin.META.name,
+            "author": plugin.META.author,
+            "version": plugin.META.version,
+            "description": plugin.META.description
+        }
+    if not getattr(plugin, "PLUGIN_NAME", False):
+        return {
+            "name": "[UNKNOWN]",
+            "version": "[UNKNOWN]",
+            "author": "[UNKNOWN]"
+        }
     return {
         "name": plugin.PLUGIN_NAME,
         "version": plugin.PLUGIN_VERSION,
@@ -74,7 +89,7 @@ def get_plugin_stats(plugin):
     }
 
 def get_plugin_from_command(func):
-    for p in printdb.PLUGINS:
+    for p in printdb.plugin_manager.get_plugins():
         if p.__module__ == func["module"]:    
             return p
     return None    
