@@ -41,10 +41,17 @@ class StreamingLogs:
 class CommandContext:
     def __init__(self, args:list[str], full_command:str):
         self.args = args
+        self._fixargs()
         self.input = StreamingLogs()
         self.output = StreamingLogs()
         self.env = os.getcwd()
         self.full_command = full_command
+    def _fixargs(self):
+        new_args = []
+        for arg in self.args:
+            new_args.append(printdb.utils.convert_str(arg))
+        self.args = new_args
+            
     def confirm(self, message:str, preferred=True) -> bool:
         option1 = "Y" if preferred else "y"
         option2 = "n" if preferred else "N"

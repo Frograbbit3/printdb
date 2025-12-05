@@ -6,6 +6,7 @@ import colorama
 import printdb.ctx
 import printdb.configuration
 import printdb.plugin_manager
+import printdb.utils as utils
 import shutil,subprocess,re
 
 CHAT_COMMANDS: dict[str, Any] = {}
@@ -19,6 +20,7 @@ CONFIGURATION = None
 SANDBOXED_MODE = True
 RAW_COMMANDS: list[str] = []
 START_TIME: int = 0
+
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
     new_args = []
@@ -233,10 +235,10 @@ def send_chat_command(command:str, append=False):
     full_command = command
     CONFIGURATION.command_history.append(command)
     command, file_name, mode =split_file_names(command)
-    command, args = split_args(command)
+    command, args = utils.tokenize_args(command)
     for alias,cmd2 in ALIASES.items():
         if command == alias:
-            command, new_args = split_args(cmd2)
+            command, new_args = utils.tokenize_args(cmd2)
             args = new_args + args
             break
     
@@ -244,7 +246,7 @@ def send_chat_command(command:str, append=False):
     if len(pipes) < 2:
         return call_chat_command(command, args=args,output=file_name, append=(mode == "append"),full_command=full_command)
     for i,cmd in enumerate(pipes):
-        cd, ags = split_args(cmd)
+        cd, ags = utils.tokenize_args(cmd)
         if i == 0:
             command_output = call_chat_command(cd,args=ags,mask_input=True,full_command=full_command)
         elif i < len(pipes)-1:

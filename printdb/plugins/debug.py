@@ -6,6 +6,7 @@ import printdb.configuration as conf
 import printdb.cross_platform.processes as ProcessManager
 import printdb.base_plugin as base
 import time
+from printdb.plugin_api import *
 from colorama import Fore
 
 @printdb.plugin_manager.register_plugin()
@@ -58,3 +59,12 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         m.run()
         m.block()
         print(m.return_code)
+    
+    @api.chat_command("test-formatting", "Tests the formatting system. Uses tags for colors.", example="test-formatting [[red]]This is red text!", is_debug=True)
+    def test_formatting(self, ctx:CommandContext):
+        ctx.output.write(ansi_format(" ".join(ctx.args)))
+
+    @api.chat_command("test-args", description="Tests argument types.",example="test-args 0", is_debug=True)
+    def test_args(self, ctx:CommandContext):
+        for i,arg in enumerate(ctx.args):
+            ctx.output.write(ansi_format(f"[[red]]Arg {i}:[[reset]] {arg} [[green]]Type:{type(arg)}[[reset]]"))

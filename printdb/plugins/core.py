@@ -27,7 +27,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
             s = sec % 60
             return f"{h:02}:{m:02}:{s:05.2f}"
         lines = [
-            f"Welcome, @{highlight(username())}!",
+            f"Welcome, @{highlight(get_username())}!",
             f"Today is {datetime.now().strftime(f"{highlight("%Y/%m/%d", Fore.CYAN)} {highlight("and it's currently", Fore.WHITE)} {highlight("%H:%M:%S", Fore.CYAN)}")}",
             f"Currently, there are {highlight(len(CHAT_COMMANDS.keys()), Fore.YELLOW)} commands loaded,",
             f"split across {highlight(len(plugin_manager.PLUGINS))} total plugins.",
@@ -78,7 +78,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
                     continue
                 if details["hidden"] == True:
                     continue
-            if getattr(get_plugin_from_command(details), "HIDDEN", False):
+            if get_plugin_from_command(details).META.hidden:
                 continue
             if details["module"] not in sorted_plugins:
                 sorted_plugins[details["module"]] = []

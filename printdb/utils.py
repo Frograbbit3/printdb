@@ -1,4 +1,4 @@
-import re, os, shutil, platform, subprocess
+import re, os, shutil, platform, subprocess, json5, shlex
 
 ALIAS_NAME = re.compile(r'^[A-Za-z0-9_-]+$')
 
@@ -30,3 +30,101 @@ def open_file(file1: str) -> None:
             subprocess.run(["open", file1])
         else:  # Linux
             subprocess.run(["xdg-open", file1])
+
+def tokenize_args(s: str) -> tuple[str, list[str]]:
+    tokens = []
+    current = []
+    depth = 0
+    in_single = False
+    in_double = False
+
+    for c in s:
+
+        if c == "'" and not in_double:
+            in_single = not in_single
+            current.append(c)
+            continue
+
+
+        if c == '"' and not in_single:
+            in_double = not in_double
+            current.append(c)
+            continue
+
+
+        if not in_single and not in_double:
+            if c in "{[":
+                depth += 1
+            elif c in "}]":
+                depth -= 1
+
+
+        if c.isspace() and depth == 0 and not in_single and not in_double:
+            if current:
+                tokens.append("".join(current))
+                current = []
+            continue
+
+        current.append(c)
+
+    if current:
+        tokens.append("".join(current))
+
+    if not tokens:
+        return ("", [])
+
+    return tokens[0], tokens[1:]
+
+
+def parse_string_list(s: str) -> list[str]:
+    split = shlex.split(s)
+    print(split)
+
+def convert_str(s: str):
+    nones = ["none", "null", "NaN"]
+    allowed_trues = ["true", "yes"]
+    allowed_falses = ["false", "no"]
+    def is_float(s: str) -> bool:
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+    def is_int(s: str) -> bool:
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False
+    def is_bool(s: str) -> bool:
+        if s.lower() in allowed_trues or s.lower() in allowed_falses:
+            return True
+        return False
+
+    def is_none(s: str) -> bool:
+        return s in nones
+    
+    def is_json(s: str) -> bool:
+        try:
+            m = json5.loads(s)   
+            return True
+        except Exception as e:
+            return False 
+        
+    if is_int(s):
+        return int(s)
+    if is_float(s):
+        return float(s)
+    if is_bool(s):
+        if s.lower() in allowed_trues:
+            return True
+        else:
+            return False
+    if is_none(s):
+        return None
+    print(s)
+    if is_json(s):
+        return json5.loads(s)
+    
+    
+    return s
