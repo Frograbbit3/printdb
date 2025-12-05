@@ -122,9 +122,12 @@ def convert_str(s: str):
             return False
     if is_none(s):
         return None
-    print(s)
     if is_json(s):
         return json5.loads(s)
     
     
     return s
+
+def pretty(s):
+    if isinstance(s, type):
+        return s.__name__

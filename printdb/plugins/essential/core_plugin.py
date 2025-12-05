@@ -7,7 +7,6 @@ class Plugin(base.BasePlugin):
         "moakdoge",
         "1.0.0",
         "A plugin with strictly reload-plugin commands. (NOTE - THIS CANNOT BE UNLOADED!)",
-        "core.essential",
         hidden=True
     )
     
@@ -17,6 +16,6 @@ class Plugin(base.BasePlugin):
         b.output.write(api.highlight("Unloaded plugins. [Note -- You can load plugins back using load-plugins.]"))
 
     @api.chat_command("load-plugins", description="Loads all plugins. ONLY USE IF UNLOAD-PLUGINS IS CALLED", example="load-plugins",is_sandboxed=True,is_debug=True)
-    def reload(self,ctx: CommandContext):
+    def reload(self,ctx: CommandContext, x: float):
         plugin_manager.load_plugins()
     

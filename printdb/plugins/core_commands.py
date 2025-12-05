@@ -83,19 +83,23 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
             ctx.output.start_redirect(f,"a")
         ctx.output.write(f"Command {cmd} took {end - start:.4f}s.")
     
-    @api.chat_command("config", description="Allows you to change the configuration of plugin / system settings.", example="config <set/get> <plugin/core> <key> <value: optional>", required_args=3)
+    @api.chat_command("config", description="Allows you to change the configuration of plugin / system settings.", example="config <set/get/list> <plugin/core> <key: optional> <value: optional>", required_args=2)
     def conf(self, ctx: CommandContext):
         mode = ctx.args[0].lower().strip()
-        ALLOWED_MODES = ["set", "get"]
+        ALLOWED_MODES = ["set", "get", "list"]
         if mode not in ALLOWED_MODES:
             ctx.output.write(api.highlight(f"[ERROR]: Please use one of the following modes: {ALLOWED_MODES}."))
             return
         plugin = ctx.args[1].lower().strip()
         valid_plugins = get_plugin_ids()
+        
         if plugin not in valid_plugins:
             ctx.output.write(api.highlight(f"[ERROR]: Not a valid plugin! Valid ones are: {valid_plugins}."))
             return
         plg = get_plugin_by_id(plugin)
+        if mode == "list":
+            ctx.output.write(plg.configuration._data)
+            return
         if len(ctx.args) < 4 and mode == "set":
             ctx.output.write(api.highlight(f"[ERROR]: Please provide a value!"))
             return

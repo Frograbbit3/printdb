@@ -34,3 +34,12 @@ def ansi_format(st: str) -> str:
         st = st.replace(f"[[{name}]]", color)
     st+=ANSI_COLOR_CODES["reset"]
     return st
+
+def pad_string(st, tiles, align="center"):
+    tiles -= len(st)
+    if align == "left":
+        return st + f"{" " * tiles}"
+    elif align == "right":
+        return f"{" " * tiles}" + st
+    else:
+        return f"{" " * (tiles // 2)}{st}{" " * (tiles // 2)}"

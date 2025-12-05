@@ -8,6 +8,7 @@ import printdb.configuration
 import printdb.plugin_manager
 import printdb.utils as utils
 import shutil,subprocess,re
+import inspect
 
 CHAT_COMMANDS: dict[str, Any] = {}
 IS_RUNNING = True
@@ -144,8 +145,9 @@ def register_alias(command:str,alias:str) -> None:
 
 def completer(text, state):
     global RAW_COMMANDS
-    commands = RAW_COMMANDS
-        
+    commands = []
+    for cmd, dtl in CHAT_COMMANDS.items():
+        commands.append(cmd)
     matches = [cmd for cmd in commands if cmd.startswith(text)]
         
     try:
@@ -289,7 +291,11 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 if v["sandboxed"] and SANDBOXED_MODE:
                     error("This command is disabled due to sandbox mode.")
                     return ""
-                context = printdb.ctx.CommandContext(args,full_command)
+                try:
+                    context = printdb.ctx.CommandContext(args,full_command,v["function"])
+                except Exception as e:
+                    error(e)
+                    return ""
                 if input is not None:
                     context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
@@ -299,7 +305,12 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                     context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
 
                 try:
-                    v["function"](plugin, context)
+                    sig = inspect.signature(v["function"])
+                    params = list(sig.parameters.values())
+                    if len(params) < 3:
+                        v["function"](plugin, context)
+                    else:
+                        v["function"](plugin, context, *context.typed_args)
                 except KeyboardInterrupt:
                     pass
                 if output is not None and not mask_input:
