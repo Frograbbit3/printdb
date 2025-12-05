@@ -9,7 +9,8 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         "Extra",
         "moakdoge",
         "1.0.0",
-        "Misc plugins that don't matter very much."
+        "Misc plugins that don't matter very much.",
+        "core.extra"
     )
     @api.chat_command("reload-plugins", description="Reloads all plugins. Use this when a script is changed.", example="reload-plugins")
     def reload(self,ctx: CommandContext):
@@ -32,7 +33,7 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
                 continue
             lines = [
                 f"[{api.highlight(str(i+1), Fore.GREEN)}]: {api.highlight(p.META.name, Fore.CYAN)}",
-                f"\t{api.highlight("ID:")} {plugin}",
+                f"\t{api.highlight("ID:")} {p.META.id}",
                 f"\t{api.highlight("Author:")} {p.META.author}",
                 f"\t{api.highlight("Version:")} {p.META.version}",
                 f"\t{api.highlight("Total:")} {len(commands)} commands",
@@ -81,3 +82,32 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         if extra != "":
             ctx.output.start_redirect(f,"a")
         ctx.output.write(f"Command {cmd} took {end - start:.4f}s.")
+    
+    @api.chat_command("config", description="Allows you to change the configuration of plugin / system settings.", example="config <set/get> <plugin/core> <key> <value: optional>", required_args=3)
+    def conf(self, ctx: CommandContext):
+        mode = ctx.args[0].lower().strip()
+        ALLOWED_MODES = ["set", "get"]
+        if mode not in ALLOWED_MODES:
+            ctx.output.write(api.highlight(f"[ERROR]: Please use one of the following modes: {ALLOWED_MODES}."))
+            return
+        plugin = ctx.args[1].lower().strip()
+        valid_plugins = get_plugin_ids()
+        if plugin not in valid_plugins:
+            ctx.output.write(api.highlight(f"[ERROR]: Not a valid plugin! Valid ones are: {valid_plugins}."))
+            return
+        plg = get_plugin_by_id(plugin)
+        if len(ctx.args) < 4 and mode == "set":
+            ctx.output.write(api.highlight(f"[ERROR]: Please provide a value!"))
+            return
+        if mode == "get":
+            v = getattr(plg.configuration, ctx.args[2], None)
+            if v is not None:
+                ctx.output.write(v)
+                return
+            else:
+                ctx.output.write(api.highlight(f"[ERROR]: Key {ctx.args[2]} not found!"))
+        if mode == "set":
+            setattr(plg.configuration, ctx.args[2], ctx.args[3])
+            ctx.output.write(f"Wrote to key {ctx.args[2]}")
+
+        pass

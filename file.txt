@@ -1,4 +1,27 @@
-[31mValueError raised in printdb.plugins.core_commands.test @ Line 40
-	File /home/moakdoge/Desktop/print/printdb/plugins/core_commands.py
-	raise ValueError("hey this isnt having an error, here's proof")
-Test exception[0m
+[32mEssential Commands[0m:
+	[34munload-plugins[0m : [31mGoodbye, world! Unloads all loaded plugins. (You can recover by calling load-plugins!)[0m (unload-plugins) [36m[DEBUG ONLY][0m [33m[SANDBOXED][0m
+	[34mload-plugins[0m : [31mLoads all plugins. ONLY USE IF UNLOAD-PLUGINS IS CALLED[0m (load-plugins) [36m[DEBUG ONLY][0m [33m[SANDBOXED][0m
+[32mCore[0m:
+	[34mwelcome[0m : [31mWelcomes the user.[0m (welcome)  
+	[34mhelp[0m : [31mGets command info[0m (help ls)  
+	[34mcat[0m : [31mReads the contents of a file.[0m (cat file.txt)  
+	[34mls[0m : [31mGets the files in the current directory[0m (ls)  
+	[34mecho[0m : [31mEchos text into output.[0m (echo hello, world!)  
+	[34mwait[0m : [31mWaits for n seconds.[0m (wait 10)  
+	[34mcd[0m : [31mChanges directory.[0m (cd ..)  
+	[34mgrep[0m : [31mSearch for a pattern in input or files.[0m (grep pattern file.txt)  
+	[34mexit[0m : [31mQuits the terminal.[0m (exit)  
+[32mExtra[0m:
+	[34mreload-plugins[0m : [31mReloads all plugins. Use this when a script is changed.[0m (reload-plugins)  
+	[34mlist-plugins[0m : [31mGives a list of every plugin.[0m (list-plugins)  
+	[34malias[0m : [31mKeybinds a command to another command.[0m (alias close exit)  
+	[34mlist-alias[0m : [31mLists all the aliases currently applied.[0m (aliases)  
+	[34mtime[0m : [31mTimes the length of a command.[0m (time wait 20)  
+[32mDebug[0m:
+	[34mtest-exception[0m : [31mTests exception messages.[0m (test-exception) [36m[DEBUG ONLY][0m 
+	[34msave-data[0m : [31mSaves the data to the local plugin save file.[0m (save-data key value) [36m[DEBUG ONLY][0m 
+	[34mload-data[0m : [31mReads all data saved in the configuration file.[0m (load-data) [36m[DEBUG ONLY][0m 
+	[34mopen-config-folder[0m : [31mOpens the configuration folder inside your default file explorer.[0m (open-config-folder) [36m[DEBUG ONLY][0m 
+	[34mrun[0m : [31mRuns an executable. Supports args[0m (run kcalc) [36m[DEBUG ONLY][0m [33m[SANDBOXED][0m
+[32mNetworking[0m:
+	[34mping[0m : [31mSends a ping request to a certain website. Goes until Control + C is pressed.[0m (ping google.com)  

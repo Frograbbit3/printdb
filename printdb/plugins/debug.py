@@ -14,7 +14,8 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         "Debug",
         "moakdoge",
         "de.bu.gg.er",
-        "Plugins to help debug the engine. These are normally hidden when debug is off."
+        "Plugins to help debug the engine. These are normally hidden when debug is off.",
+        "core.debug"
     )
 
 

@@ -13,7 +13,9 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
     META = base.PluginMeta(
         "Networking",
         "moakdoge",
-        "1.0.0"
+        "1.0.0",
+        "Networking commands.",
+        id="core.networking"
     )
     
     @api.chat_command("ping", "Sends a ping request to a certain website. Goes until Control + C is pressed.", example="ping google.com", required_args=1)

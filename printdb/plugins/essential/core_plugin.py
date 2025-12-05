@@ -7,6 +7,7 @@ class Plugin(base.BasePlugin):
         "moakdoge",
         "1.0.0",
         "A plugin with strictly reload-plugin commands. (NOTE - THIS CANNOT BE UNLOADED!)",
+        "core.essential",
         hidden=True
     )
     

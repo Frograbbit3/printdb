@@ -46,7 +46,8 @@ def load_plugins():
         name = cls._plugin_meta
 
         instance = cls()
-        instance.configuration = configuration.Configuration(f"plugins/{name}.json")
+        p=f"plugins/%s.json" % instance.META.id
+        instance.configuration = configuration.Configuration(p)
         instance.configuration.load_save()
         instance.on_load()
         PLUGINS.append(instance)

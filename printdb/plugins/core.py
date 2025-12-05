@@ -12,30 +12,57 @@ class Plugin(printdb.base_plugin.BasePlugin):
         "Core",
         "moakdoge",
         "1.0.0",
-        "The core commands."
+        "The core commands.",
+        "core.commands"
     )
     @chat_command("welcome", description="Welcomes the user.", example="welcome")
     def welcome(self, ctx: CommandContext):
+        def newline():
+            return "\n"
+
+        runtime = time.time() - api.START_TIME
+        def fmt_time(sec):
+            h = int(sec // 3600)
+            m = int((sec % 3600) // 60)
+            s = sec % 60
+            return f"{h:02}:{m:02}:{s:05.2f}"
         lines = [
-            f"Welcome, {highlight(username())}!",
-            f"{highlight(datetime.now().strftime("Today is %Y/%m/%d and it's currently %H:%M:%S"), Fore.CYAN)}",
+            f"Welcome, @{highlight(username())}!",
+            f"Today is {datetime.now().strftime(f"{highlight("%Y/%m/%d", Fore.CYAN)} {highlight("and it's currently", Fore.WHITE)} {highlight("%H:%M:%S", Fore.CYAN)}")}",
+            f"Currently, there are {highlight(len(CHAT_COMMANDS.keys()), Fore.YELLOW)} commands loaded,",
+            f"split across {highlight(len(plugin_manager.PLUGINS))} total plugins.",
+            "[dash]",
+            f"You are currently logged into UID {highlight(os.getuid(), Fore.GREEN)}",
+            f"Aliases: {highlight(len(ALIASES), Fore.MAGENTA)}",
+            f"Sandbox mode: {highlight('ON', Fore.GREEN) if api.CONFIGURATION.sandboxed else highlight('OFF', Fore.RED)}",
+            f"Uptime: {highlight(fmt_time(runtime))}",
+            "[dash]",
+            f"Thanks for using {highlight("printdb!", Fore.LIGHTYELLOW_EX)}"
         ]
         real_lines = []
         max_len = 0
         ANSI = re.compile(r'\x1b\[[0-9;]*m')
 
 
+        
         for line in lines:
             if max_len < len(line):
                 max_len = len(line)
-        max_len=80
+        real_lines.append((max_len+4) * "-")
         for l in lines:
             f=ANSI.sub("", l)
             if len(f) % 2 != 0:
                 l+=" "
-            SPACES = max_len - len(f)
+            if f == "\n":
+                l = ""
+                SPACES = max_len
+            elif f == "[dash]":
+                real_lines.append("||" + ("-" * ((max_len))) + "||")
+                continue
+            else:
+                SPACES = max_len - len(f)
             real_lines.append(f"||{" " * (SPACES//2)}{l}{" " * (SPACES//2)}||")
-
+        real_lines.append((max_len+4) * "-")
         ctx.output.write("\n".join(real_lines))
 
     @chat_command("help", description="Gets command info",example="help ls")

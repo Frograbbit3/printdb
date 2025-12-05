@@ -6,7 +6,8 @@ class PluginMeta:
     name: str = "[UKNOWN]"
     author: str = "[N/A]"
     version: str = "[N/A]"
-    description: str = "[N/A]"
+    description: str = "[N/A]",
+    id: str= "unknown"
     hidden: bool = False
 
 class BasePlugin:

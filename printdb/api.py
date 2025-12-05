@@ -1,7 +1,8 @@
-import random,time,json,os,shlex,threading,linecache
+import random,time,json,os,shlex,threading,linecache,time
 from typing import Any
 import readline
-from colorama import Fore, Style, init
+from colorama import Fore, Style
+import colorama
 import printdb.ctx
 import printdb.configuration
 import printdb.plugin_manager
@@ -17,7 +18,7 @@ ALIASES: dict[str,str] = {}
 CONFIGURATION = None
 SANDBOXED_MODE = True
 RAW_COMMANDS: list[str] = []
-
+START_TIME: int = 0
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
     new_args = []
@@ -40,6 +41,12 @@ def error(*args) -> None:
 
 import os
 
+
+def init():
+    global START_TIME
+    colorama.init()
+    load_configuration()
+    START_TIME = time.time()
 def load_configuration():
     global CONFIGURATION,ALIASES,USE_DEBUG_MODE,SANDBOXED_MODE
     CONFIGURATION = printdb.configuration.Configuration()
@@ -54,7 +61,7 @@ def load_configuration():
     else:
         CONFIGURATION.last_path = os.path.expanduser("~")
     if CONFIGURATION.aliases is None:
-        CONFIGURATION.aliases = []
+        CONFIGURATION.aliases = {}
     else:
         ALIASES = CONFIGURATION.aliases
     if CONFIGURATION.debug is None:
@@ -83,7 +90,8 @@ def get_plugin_stats(plugin):
             "name": plugin.META.name,
             "author": plugin.META.author,
             "version": plugin.META.version,
-            "description": plugin.META.description
+            "description": plugin.META.description,
+            "id": plugin.META.id
         }
     if not getattr(plugin, "PLUGIN_NAME", False):
         return {

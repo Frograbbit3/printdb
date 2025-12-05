@@ -10,7 +10,7 @@ class Configuration:
         self._data = {}
 
     def get_save(self):
-        return utils.path_join(SAVE_FOLDER,f"{self._file}.json")
+        return utils.path_join(SAVE_FOLDER,f"{self._file}")
 
     def load_save(self):
         path = self.get_save()
@@ -39,6 +39,7 @@ class Configuration:
         if self._loaded:
             self._data[name] = value
 
+        self.save_save()
         object.__setattr__(self, name, value)
 
     def __getattr__(self, name):
