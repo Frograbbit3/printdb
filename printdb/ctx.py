@@ -23,7 +23,8 @@ class StreamingLogs:
         self.redirect_mode = None
 
     def write(self, content: Any, end="\n"):
-        text = str(content) + end
+        from printdb.plugin_api import ansi_format
+        text = str(ansi_format(content)) + end
 
         if self._file:
             self._file.write(text)
@@ -89,12 +90,16 @@ class CommandContext:
             val = provided[ai]
 
             if not isinstance(val, annotation):
-                raise Exception(f"Argument '{name}' expected {printdb.utils.pretty(annotation)}, got {printdb.utils.pretty(type(val))} ({val})")
+                if default is inspect._empty:
+                    raise Exception(f"Argument '{name}' expected {printdb.utils.pretty(annotation)}, got {printdb.utils.pretty(type(val))} ({val})")
+                else: #optional param
+                    pi+=1
+                    typed.append(default)
+                    continue
 
             typed.append(val)
             ai += 1
             pi += 1
-            
         if ai < len(provided):
             raise Exception("Too many arguments provided")
 

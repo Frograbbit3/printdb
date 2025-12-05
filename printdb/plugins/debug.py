@@ -28,8 +28,8 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         raise ValueError("Test exception")
     
     @api.chat_command("save-data", description="Saves the data to the local plugin save file.", example="save-data key value", required_args=2, is_debug=True)
-    def save_data(self, ctx: CommandContext):
-        setattr(self.configuration, ctx.args[0],ctx.args[1])
+    def save_data(self, ctx: CommandContext, key: str, val: str):
+        setattr(self.configuration, key, val)
         self.configuration.save_save()
         ctx.output.write(self.configuration._data)
 

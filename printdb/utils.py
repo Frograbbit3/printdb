@@ -1,4 +1,4 @@
-import re, os, shutil, platform, subprocess, json5, shlex
+import re, os, shutil, platform, subprocess, json5, shlex, pathlib,printdb.api
 
 ALIAS_NAME = re.compile(r'^[A-Za-z0-9_-]+$')
 
@@ -76,9 +76,12 @@ def tokenize_args(s: str) -> tuple[str, list[str]]:
     return tokens[0], tokens[1:]
 
 
-def parse_string_list(s: str) -> list[str]:
-    split = shlex.split(s)
-    print(split)
+def is_path(s: str) -> bool:
+    if os.path.exists(printdb.api.expand_path(s)):
+        return True
+    return False
+
+
 
 def convert_str(s: str):
     nones = ["none", "null", "NaN"]
@@ -124,6 +127,8 @@ def convert_str(s: str):
         return None
     if is_json(s):
         return json5.loads(s)
+    if is_path(s):
+        return pathlib.Path(printdb.api.expand_path(s))
     
     
     return s
