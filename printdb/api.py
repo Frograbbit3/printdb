@@ -232,7 +232,7 @@ def split_file_names(full_command: str):
     else:
         return (full_command, None, None)
     
-def send_chat_command(command:str, append=False):
+def send_chat_command(command:str, silent:bool = False):
     global CONFIGURATION
     full_command = command
     CONFIGURATION.command_history.append(command)
@@ -244,18 +244,8 @@ def send_chat_command(command:str, append=False):
             args = new_args + args
             break
     
-    pipes = split_pipes(command+" "+" ".join(args))
-    if len(pipes) < 2:
-        return call_chat_command(command, args=args,output=file_name, append=(mode == "append"),full_command=full_command)
-    for i,cmd in enumerate(pipes):
-        cd, ags = utils.tokenize_args(cmd)
-        if i == 0:
-            command_output = call_chat_command(cd,args=ags,mask_input=True,full_command=full_command)
-        elif i < len(pipes)-1:
-            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True,full_command=full_command)
-        else:
-            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append"),full_command=full_command) 
-        
+    return call_chat_command(command, args=args,output=file_name,mask_input=silent, append=(mode == "append"),full_command=full_command)
+   
 
 def call_chat_command(command: str, args=[], append=False, input=None, mask_input=False, output = None, full_command=None):
     global CHAT_COMMANDS,PREVIOUS_LOGS
@@ -296,13 +286,9 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 except Exception as e:
                     error(e)
                     return ""
-                if input is not None:
-                    context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
-                if output is not None or mask_input:
+                if mask_input:
                     context.output.flush_enabled = False
-                if output is not None :
-                    context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
 
                 try:
                     sig = inspect.signature(v["function"])
@@ -313,8 +299,6 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                         v["function"](plugin, context, *context.typed_args)
                 except KeyboardInterrupt:
                     pass
-                if output is not None and not mask_input:
-                    context.output.stop_redirect()
 
                 
             except Exception as e:

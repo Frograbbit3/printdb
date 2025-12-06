@@ -57,6 +57,6 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         ctx.output.write(ansi_format(" ".join(ctx.args)))
 
     @api.chat_command("test-args", description="Tests argument types.",example="test-args 0", is_debug=True)
-    def test_args(self, ctx:CommandContext, arg1: float, arg2: int = 0):
+    def test_args(self, ctx:CommandContext):
         for i,arg in enumerate(ctx.args):
             ctx.output.write(ansi_format(f"[[red]]Arg {i}:[[reset]] {arg} [[green]]Type:{type(arg)}[[reset]]"))

@@ -32,7 +32,6 @@ class Plugin(printdb.base_plugin.BasePlugin):
             f"Currently, there are {highlight(len(CHAT_COMMANDS.keys()), Fore.YELLOW)} commands loaded,",
             f"split across {highlight(len(plugin_manager.PLUGINS))} total plugins.",
             "[dash]",
-            f"You are currently logged into UID {highlight(os.getuid(), Fore.GREEN)}",
             f"Aliases: {highlight(len(ALIASES), Fore.MAGENTA)}",
             f"Sandbox mode: {highlight('ON', Fore.GREEN) if api.CONFIGURATION.sandboxed else highlight('OFF', Fore.RED)}",
             f"Uptime: {highlight(fmt_time(runtime))}",
