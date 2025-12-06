@@ -6,6 +6,7 @@ import colorama
 import printdb.ctx
 import printdb.configuration
 import printdb.plugin_manager
+from printdb.base_plugin import BasePlugin,PluginMeta
 import printdb.utils as utils
 import shutil,subprocess,re
 import inspect
@@ -21,6 +22,7 @@ CONFIGURATION = None
 SANDBOXED_MODE = True
 RAW_COMMANDS: list[str] = []
 START_TIME: int = 0
+GhostPlugin = BasePlugin()
 
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
@@ -112,7 +114,7 @@ def get_plugin_from_command(func):
     for p in printdb.plugin_manager.get_plugins():
         if p.__module__ == func["module"]:    
             return p
-    return None    
+    return GhostPlugin
 
 def save_configuration():
     global CONFIGURATION
@@ -236,8 +238,8 @@ def send_chat_command(command:str, silent:bool = False):
     global CONFIGURATION
     full_command = command
     CONFIGURATION.command_history.append(command)
-    command, file_name, mode =split_file_names(command)
     command, args = utils.tokenize_args(command)
+    command, file_name, mode =split_file_names(command)
     for alias,cmd2 in ALIASES.items():
         if command == alias:
             command, new_args = utils.tokenize_args(cmd2)
@@ -294,9 +296,9 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                     sig = inspect.signature(v["function"])
                     params = list(sig.parameters.values())
                     if len(params) < 3:
-                        v["function"](plugin, context)
+                        out = v["function"](plugin, context)
                     else:
-                        v["function"](plugin, context, *context.typed_args)
+                        out = v["function"](plugin, context, *context.typed_args)
                 except KeyboardInterrupt:
                     pass
 
@@ -304,7 +306,10 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
             except Exception as e:
                 context.output.write(highlight(trace_error(v, e)))
                 return None
-            return context.output.read()
+            if context.output.read() == "":
+                return out
+            else:
+                return context.output.read()
 
     error("Command", command, "not found!")
     return None

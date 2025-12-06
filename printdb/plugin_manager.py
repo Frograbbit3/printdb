@@ -1,8 +1,9 @@
 import importlib
-import pkgutil
+import pkgutil, inspect
 from printdb import configuration, utils
 import printdb
 import printdb.base_plugin
+
 
 
 PLUGINS = []
@@ -14,6 +15,20 @@ REGISTERED_PLUGINS: printdb.base_plugin.BasePlugin= []
 
 def get_plugins() -> list:
     return PLUGINS
+
+import inspect
+
+def build_plugin_from_module(mod):
+    for name, func in inspect.getmembers(mod, inspect.isroutine):
+        if name.startswith("_"):
+            continue
+        def make_wrapper(func):
+            def wrapper(plugin, ctx, *args):
+                return func(*args)
+            wrapper.__doc__ = func.__doc__
+            return wrapper
+        printdb.api.chat_command(name,func.__doc__, "N/A")(make_wrapper(func))
+    print(printdb.api.CHAT_COMMANDS)
 
 def load_plugin(mod):
     global PLUGIN_MODULES

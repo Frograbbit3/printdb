@@ -65,7 +65,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
         ctx.output.write("\n".join(real_lines))
 
     @chat_command("help", description="Gets command info",example="help ls")
-    def help(self,ctx, cmd:str = ""):
+    def help(self,ctx, cmd:str = "", full:bool = False):
         if cmd is None:
             ctx.output.write("[[blue]][[bold]]ALL COMMANDS")
             ctx.output.write(f"Total:  {len(CHAT_COMMANDS.keys())}")
@@ -101,7 +101,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
                         prmp += ", "
                 de= [
                    f"\t[[red]][[bold]]{details["command"]}: [[reset]][[yellow]]{prmp}[[reset]]",
-                   f"\t\t[[blue]]{details["description"]}[[reset]]",
+                   f"\t\t[[blue]]{details["description"]}[[reset]]" if full else "",
                    f"\t\t[[green]]Usage: '{details["example"]}[[green]]'[[reset]]",
                    f"\t\t[[yellow]]{"[SANDBOXED]" if details["sandboxed"] else ""}[[cyan]]{"[DEBUG]" if details["debug"] else ""}",
                 ]

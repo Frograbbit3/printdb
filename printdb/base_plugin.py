@@ -12,7 +12,7 @@ class PluginMeta:
 
 class BasePlugin:
     configuration:printdb.configuration.Configuration = None
-    PLUGIN_META = PluginMeta()
+    META = PluginMeta()
     def __init__(self):
         pass
     def on_load(self):

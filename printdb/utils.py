@@ -34,7 +34,7 @@ def open_file(file1: str) -> None:
 def tokenize_args(s: str) -> tuple[str, list[str]]:
 
     # work on command stuff
-    MACRO_BLOCK_REGEX = re.compile(r'\$\{([^}]*)\}')
+    MACRO_BLOCK_REGEX = re.compile(r'\$\{(.*)\}')
     matches = MACRO_BLOCK_REGEX.findall(s)
     for cmd in matches:
         #recursively parse the ${command}

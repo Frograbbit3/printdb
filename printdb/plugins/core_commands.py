@@ -28,21 +28,24 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         i=0
         for k,plugin in enumerate(plugin_manager.PLUGINS):
             p=plugin
-            commands = PLUGIN_DATA[plugin.__module__]
-            if getattr(p.META, "HIDDEN", False):
-                continue
-            lines = [
-                f"[{api.highlight(str(i+1), Fore.GREEN)}]: {api.highlight(p.META.name, Fore.CYAN)}",
-                f"\t{api.highlight("ID:")} {p.META.id}",
-                f"\t{api.highlight("Author:")} {p.META.author}",
-                f"\t{api.highlight("Version:")} {p.META.version}",
-                f"\t{api.highlight("Total:")} {len(commands)} commands",
-                f"\t{api.highlight("Description:")} {p.META.description}"
-                
+            try:
+                commands = PLUGIN_DATA[plugin.__module__]
+                if getattr(p.META, "HIDDEN", False):
+                    continue
+                lines = [
+                    f"[{api.highlight(str(i+1), Fore.GREEN)}]: {api.highlight(p.META.name, Fore.CYAN)}",
+                    f"\t{api.highlight("ID:")} {p.META.id}",
+                    f"\t{api.highlight("Author:")} {p.META.author}",
+                    f"\t{api.highlight("Version:")} {p.META.version}",
+                    f"\t{api.highlight("Total:")} {len(commands)} commands",
+                    f"\t{api.highlight("Description:")} {p.META.description}"
+                    
 
-            ]
-            ctx.output.write("\n".join(lines))
-            i+=1
+                ]
+                ctx.output.write("\n".join(lines))
+                i+=1
+            except Exception:
+                pass
 
     @api.chat_command("alias", description="Keybinds a command to another command.", example='alias close exit',required_args=2)
     def alias(self,ctx: CommandContext, alias: str, value: str):

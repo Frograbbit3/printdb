@@ -2,8 +2,8 @@
 import printdb, shlex
 IS_RUNNING = True
 IS_TYPING = False
-
 printdb.init()
+printdb.plugin_manager.build_plugin_from_module(printdb.plugin_manager.importlib.import_module("builtins"))
 printdb.api.send_chat_command("welcome")
 while IS_RUNNING:
     try:
@@ -13,7 +13,9 @@ while IS_RUNNING:
         args = shlex.split(command)
 
         if len(args) > 0:
-            printdb.api.send_chat_command(command)
+            v = printdb.api.send_chat_command(command)
+            if v is not None and v != "":
+                print(v)
 
     except KeyboardInterrupt:
         if IS_TYPING:
