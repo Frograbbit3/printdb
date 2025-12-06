@@ -3,7 +3,10 @@ import printdb, shlex
 IS_RUNNING = True
 IS_TYPING = False
 printdb.init()
-printdb.plugin_manager.build_plugin_from_module(printdb.plugin_manager.importlib.import_module("builtins"))
+printdb.plugin_manager.build_plugin_from_module(printdb.plugin_manager.importlib.import_module("os"))
+printdb.plugin_manager.build_plugin_from_module(printdb.plugin_manager.importlib.import_module("math"))
+printdb.plugin_manager.build_plugin_from_module(printdb.plugin_manager.importlib.import_module("importlib"))
+printdb.plugin_manager.build_plugin_from_module(printdb.plugin_manager.importlib.import_module("flask"))
 printdb.api.send_chat_command("welcome")
 while IS_RUNNING:
     try:
