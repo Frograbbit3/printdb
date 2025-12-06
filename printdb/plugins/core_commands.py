@@ -45,16 +45,16 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
             i+=1
 
     @api.chat_command("alias", description="Keybinds a command to another command.", example='alias close exit',required_args=2)
-    def alias(self,ctx: CommandContext):
-        if not utils.validate_alias(ctx.args[0]):
+    def alias(self,ctx: CommandContext, alias: str, value: str):
+        if not utils.validate_alias(alias):
             ctx.output.write(api.highlight("Please only use alphanumeric characters in your alias."))
             return
-        if ctx.args[0] in api.ALIASES.keys():
-            overwrite = ctx.confirm(f"Do you want to overwrite alias {ctx.args[0]}?", preferred=False)
+        if alias in api.ALIASES.keys():
+            overwrite = ctx.confirm(f"Do you want to overwrite alias {alias}?", preferred=False)
             if not overwrite:
                 ctx.output.write("Cancelled overwrite.")
                 return
-        api.register_alias(ctx.args[1], ctx.args[0])
+        api.register_alias(value, alias)
         ctx.output.write("Wrote alias successfully.")
     
     @api.chat_command("list-alias", description="Lists all the aliases currently applied.", example="aliases")
@@ -84,13 +84,13 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         ctx.output.write(f"Command {cmd} took {end - start:.4f}s.")
     
     @api.chat_command("config", description="Allows you to change the configuration of plugin / system settings.", example="config <set/get/list> <plugin/core> <key: optional> <value: optional>", required_args=2)
-    def conf(self, ctx: CommandContext):
-        mode = ctx.args[0].lower().strip()
+    def conf(self, ctx: CommandContext, mode: str, plugin: str, key: Any = None, value: Any = None):
+        mode = mode.lower()
         ALLOWED_MODES = ["set", "get", "list"]
         if mode not in ALLOWED_MODES:
             ctx.output.write(api.highlight(f"[ERROR]: Please use one of the following modes: {ALLOWED_MODES}."))
             return
-        plugin = ctx.args[1].lower().strip()
+        
         valid_plugins = get_plugin_ids()
         
         if plugin not in valid_plugins:
@@ -98,20 +98,20 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
             return
         plg = get_plugin_by_id(plugin)
         if mode == "list":
-            ctx.output.write(plg.configuration._data)
+            ctx.output.write(str(plg.configuration._data))
             return
         if len(ctx.args) < 4 and mode == "set":
             ctx.output.write(api.highlight(f"[ERROR]: Please provide a value!"))
             return
         if mode == "get":
-            v = getattr(plg.configuration, ctx.args[2], None)
+            v = getattr(plg.configuration, key, None)
             if v is not None:
                 ctx.output.write(v)
                 return
             else:
-                ctx.output.write(api.highlight(f"[ERROR]: Key {ctx.args[2]} not found!"))
+                ctx.output.write(api.highlight(f"[ERROR]: Key {key} not found!"))
         if mode == "set":
-            setattr(plg.configuration, ctx.args[2], ctx.args[3])
-            ctx.output.write(f"Wrote to key {ctx.args[2]}")
+            setattr(plg.configuration, key, value)
+            ctx.output.write(f"Wrote to key {key}")
 
         pass

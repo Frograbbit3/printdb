@@ -5,6 +5,7 @@ import printdb.cross_platform as cross_platform
 import printdb.ctx as ctx
 import printdb.plugin_manager as plugin_manager
 import printdb.utils as utils
+from typing import Any
 from pathlib import Path
 from .core import *
 from colorama import Fore

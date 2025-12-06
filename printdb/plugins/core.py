@@ -93,13 +93,20 @@ class Plugin(printdb.base_plugin.BasePlugin):
                 if details["hidden"] == True:
                     continue
                 args = get_args(details["command"])
-                details = [
-                   f"\t[[red]][[bold]]{details["command"]}:[[reset]]",
+                prmp = ""
+                if args is not None:
+                    for arg, dd in args.items():
+                        prmp += f"[[cyan]]{arg}: [[red]]{dd["type"]}"
+                        if dd["optional"]:
+                            prmp += " (optional)"
+                        prmp += ", "
+                de= [
+                   f"\t[[red]][[bold]]{details["command"]}: [[reset]][[yellow]]{prmp}[[reset]]",
                    f"\t\t[[blue]]{details["description"]}[[reset]]",
-                   f"\t\t[[green]]'{details["example"]}[[green]]'[[reset]]",
+                   f"\t\t[[green]]Usage: '{details["example"]}[[green]]'[[reset]]",
                    f"\t\t[[yellow]]{"[SANDBOXED]" if details["sandboxed"] else ""}[[cyan]]{"[DEBUG]" if details["debug"] else ""}",
                 ]
-                ctx.output.write("\n".join(details))
+                ctx.output.write("\n".join(de))
                 #ctx.output.write(f"\t{highlight(details["command"], Fore.BLUE)} : {highlight(details["description"], Fore.RED)} ({details["example"]}) {highlight("[DEBUG ONLY]", Fore.CYAN) if details["debug"] else ""} {highlight("[SANDBOXED]", Fore.YELLOW) if details["sandboxed"] else ""}")
     
     @chat_command("cat", description="Reads the contents of a file.", example="cat file.txt")

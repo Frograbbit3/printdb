@@ -89,13 +89,17 @@ class CommandContext:
                 raise Exception(f"Missing required argument '{name}'")
             val = provided[ai]
 
-            if not isinstance(val, annotation):
-                if default is inspect._empty:
-                    raise Exception(f"Argument '{name}' expected {printdb.utils.pretty(annotation)}, got {printdb.utils.pretty(type(val))} ({val})")
-                else: #optional param
-                    pi+=1
-                    typed.append(default)
-                    continue
+
+            try:
+                if not isinstance(val, annotation):
+                    if default is inspect._empty:
+                        raise Exception(f"Argument '{name}' expected {printdb.utils.pretty(annotation)}, got {printdb.utils.pretty(type(val))} ({val})")
+                    else: #optional param
+                        pi+=1
+                        typed.append(default)
+                        continue
+            except TypeError:
+                pass
 
             typed.append(val)
             ai += 1

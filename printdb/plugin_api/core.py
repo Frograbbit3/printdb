@@ -96,7 +96,6 @@ def columnize(items, padding=2):
 
 def get_args(cmd: str):
     # getting the command
-
     command_func = None
     for command, details in printdb.api.CHAT_COMMANDS.items():
         if command == cmd:
@@ -111,16 +110,15 @@ def get_args(cmd: str):
      
     if len(params) < 1:
         return None
-    
     args = {}
 
     for param in params:
     
         args[param.name] = {
             "type": printdb.utils.pretty(param.annotation),
-            "optional": (param.empty != inspect._empty),
+            "optional": (param.default != inspect._empty),
             "variadic": (param.kind == inspect.Parameter.VAR_POSITIONAL),
             "default": param.default if param.default != inspect._empty else None
         }
 
-    return
+    return args
