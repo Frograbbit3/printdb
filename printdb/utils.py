@@ -38,7 +38,8 @@ def tokenize_args(s: str) -> tuple[str, list[str]]:
     for cmd in matches:
         #recursively parse the ${command}
         output = printdb.api.send_chat_command(cmd, silent=True) 
-        s = s.replace(f"${{{cmd}}}", output)
+        s = s.replace(f"${{{cmd}}}", f'"{output}"')
+
 
     tokens = []
     current = []

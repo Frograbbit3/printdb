@@ -171,6 +171,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
         elif ctx.input.read() != "":
             lines = ctx.input.read().splitlines()
 
+
         results = 0
         for line in lines:
             if pattern in line:
