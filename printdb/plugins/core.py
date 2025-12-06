@@ -149,7 +149,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
     @chat_command("echo", description="Echos text into output.", example="echo hello, world!")
     def echo(self,ctx: CommandContext): #bad example lol
         fixed = ctx.full_command.lstrip("echo").lstrip()
-        ctx.output.write(fixed)
+        ctx.output.write(fixed,end="")
         
 
     @chat_command("wait", description="Waits for n seconds.", example="wait 10", required_args=1)

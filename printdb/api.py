@@ -269,7 +269,7 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                     except KeyboardInterrupt:
                          return
                 return
-
+    command = re.compile(r'\x1b\[[0-9;]*m').sub("", command)
     for cmd,v in CHAT_COMMANDS.items():
         if cmd != command:
             continue

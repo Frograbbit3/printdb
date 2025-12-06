@@ -22,9 +22,12 @@ class StreamingLogs:
         self.redirect_file = None
         self.redirect_mode = None
 
-    def write(self, content: Any, end="\n"):
-        from printdb.plugin_api import ansi_format
-        text = str(ansi_format(content)) + end
+    def write(self, content: Any, end="\n", ansi: bool = True):
+        if ansi:
+            from printdb.plugin_api import ansi_format
+            text = str(ansi_format(content)) + end
+        else:
+            text = str(content)
 
         if self._file:
             self._file.write(text)

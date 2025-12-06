@@ -32,6 +32,7 @@ def open_file(file1: str) -> None:
             subprocess.run(["xdg-open", file1])
 
 def tokenize_args(s: str) -> tuple[str, list[str]]:
+
     # work on command stuff
     MACRO_BLOCK_REGEX = re.compile(r'\$\{([^}]*)\}')
     matches = MACRO_BLOCK_REGEX.findall(s)
@@ -40,7 +41,8 @@ def tokenize_args(s: str) -> tuple[str, list[str]]:
         output = printdb.api.send_chat_command(cmd, silent=True) 
         s = s.replace(f"${{{cmd}}}", f'"{output}"')
 
-
+    if s.startswith('"') and s.endswith('"'):
+        s = s.lstrip('"').rstrip('"')
     tokens = []
     current = []
     depth = 0
