@@ -12,10 +12,13 @@ class StreamingLogs:
     def start_redirect(self, path, mode="w"):
         self.redirect_file = path
         self.redirect_mode = mode
-        self._file = open(path, mode)
+        if path == None:
+            self._file = "[BLANK]"
+        else:
+            self._file = open(path, mode)
 
     def stop_redirect(self):
-        if self._file:
+        if self._file and self._file != "[BLANK]":
             self._file.flush()
             self._file.close()
         self._file = None
@@ -26,18 +29,25 @@ class StreamingLogs:
         from printdb.plugin_api import ansi_format
         text = str(ansi_format(content)) + end
 
+        print(self._file, self.logs)
         if self._file:
-            self._file.write(text)
-            self._file.flush()
+            if self._file != "[BLANK]":
+                self._file.write(text)
+                self._file.flush()
+            self.logs.append(text)
             return
 
         # Otherwise write to terminal
+
         if self.flush_enabled:
             print(text,end="")
         self.logs.append(text)
 
     def read(self):
         return "".join(self.logs)
+
+    def __setattr__(self, name, value):
+        super.__setattr__(self, name, value)
 
 
 class CommandContext:
@@ -104,8 +114,7 @@ class CommandContext:
             typed.append(val)
             ai += 1
             pi += 1
-        if ai < len(provided):
-            raise Exception("Too many arguments provided")
+
 
         self.typed_args = typed
 

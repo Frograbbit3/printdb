@@ -133,6 +133,30 @@ def convert_str(s: str):
     
     return s
 
-def pretty(s):
+def pretty(s, indent=2):
+    from colorama import Fore
+    pad = " " * indent
+    obj = s
     if isinstance(s, type):
         return s.__name__
+    if isinstance(s, dict):
+        if isinstance(obj, dict):
+            if not obj:
+                return "{}"
+            lines = [printdb.api.highlight('{', Fore.GREEN)]
+            for k, v in obj.items():
+                
+                key_str = printdb.api.highlight(pretty(k, indent + 1), Fore.RED)
+                val_str = printdb.api.highlight(pretty(v, indent + 1), Fore.GREEN)
+                lines.append(f"{pad}  {key_str}: {val_str},")
+            lines.append(printdb.api.highlight('}', Fore.GREEN))
+            return "\n".join(lines)
+    if isinstance(obj, list):
+        lines = [printdb.api.highlight(f'{pad}(', Fore.CYAN)]
+        for i, v in enumerate(obj):
+            number = printdb.api.highlight(f"[{printdb.api.highlight(i, Fore.LIGHTYELLOW_EX)}{printdb.api.highlight(']', Fore.GREEN)}:", Fore.GREEN)
+            value = printdb.api.highlight(pretty(v, indent + 1), Fore.CYAN)
+            lines.append(f"{pad}{pad}{number} {value}")
+        lines.append(printdb.api.highlight(f'{pad})', Fore.CYAN))
+        return "\n".join(lines)
+    return s

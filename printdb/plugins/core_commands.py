@@ -94,11 +94,11 @@ class Plugin(base.BasePlugin): #self suicide plugin :3
         valid_plugins = get_plugin_ids()
         
         if plugin not in valid_plugins:
-            ctx.output.write(api.highlight(f"[ERROR]: Not a valid plugin! Valid ones are: {valid_plugins}."))
+            ctx.output.write(api.highlight(f"[ERROR]: Not a valid plugin! Valid ones are: {prettyprint(valid_plugins)}."))
             return
         plg = get_plugin_by_id(plugin)
         if mode == "list":
-            ctx.output.write(str(plg.configuration._data))
+            ctx.output.write(prettyprint(plg.configuration._data))
             return
         if len(ctx.args) < 4 and mode == "set":
             ctx.output.write(api.highlight(f"[ERROR]: Please provide a value!"))

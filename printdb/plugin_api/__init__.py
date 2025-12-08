@@ -15,3 +15,4 @@ PluginMeta = base.PluginMeta
 BasePlugin = base.BasePlugin
 register_plugin = plugin_manager.register_plugin
 chat_command = api.chat_command
+prettyprint=utils.pretty

@@ -124,7 +124,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
 
 
     @chat_command("ls", description="Gets the files in a directory.", example="ls ~")
-    def ls(self, ctx, path: Path=None, force: bool = False):
+    def ls(self, ctx: CommandContext, path: Path=None, force: bool = False):
         if path is not None:
             
             _FILES = os.listdir(path.absolute())
@@ -167,11 +167,11 @@ class Plugin(printdb.base_plugin.BasePlugin):
         if file is not None:
             with open(file, "r") as f:
                 lines = f.read().splitlines()
-        elif input is not None:
+        elif input != "":
             lines = input.splitlines()
         elif ctx.input.read() != "":
             lines = ctx.input.read().splitlines()
-
+        
         results = 0
         for line in lines:
             if pattern in line:

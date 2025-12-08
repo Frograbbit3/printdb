@@ -254,7 +254,7 @@ def send_chat_command(command:str, append=False):
         elif i < len(pipes)-1:
             command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True,full_command=full_command)
         else:
-            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append"),full_command=full_command) 
+            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True,output=file_name, append=(mode == "append"),full_command=full_command) 
         
 
 def call_chat_command(command: str, args=[], append=False, input=None, mask_input=False, output = None, full_command=None):
@@ -296,12 +296,15 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 except Exception as e:
                     error(e)
                     return ""
+                
                 if input is not None:
                     context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
-                if output is not None or mask_input:
-                    context.output.flush_enabled = False
-                if output is not None :
+                
+                if mask_input:
+                    context.output.start_redirect(None, "w")
+
+                if output is not None:
                     context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
 
                 try:
@@ -313,7 +316,7 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                         v["function"](plugin, context, *context.typed_args)
                 except KeyboardInterrupt:
                     pass
-                if output is not None and not mask_input:
+                if output is not None or mask_input:
                     context.output.stop_redirect()
 
                 
