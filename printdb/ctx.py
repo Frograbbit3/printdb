@@ -32,7 +32,7 @@ class StreamingLogs:
         else:
             text = str(content)
 
-        print(self._file, self.logs)
+
         if self._file:
             if self._file != "[BLANK]":
                 self._file.write(text)

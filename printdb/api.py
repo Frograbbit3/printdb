@@ -301,8 +301,9 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 if input is not None:
                     context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
-                if output is not None or mask_input:
-                    context.output.flush_enabled = False
+                if mask_input:
+                    context.output.start_redirect(None, "w")
+
                 if output is not None :
                     context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
 
@@ -315,17 +316,14 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                         out = v["function"](plugin, context, *context.typed_args)
                 except KeyboardInterrupt:
                     pass
-                if output is not None and not mask_input:
+                if output is not None or mask_input:
                     context.output.stop_redirect()
 
                 
             except Exception as e:
                 context.output.write(highlight(trace_error(v, e)))
                 return None
-            if context.output.read() == "":
-                return out
-            else:
-                return context.output.read()
+            return context.output.read()
 
     error("Command", command, "not found!")
     return None
