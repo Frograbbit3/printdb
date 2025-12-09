@@ -32,7 +32,6 @@ class Plugin(printdb.base_plugin.BasePlugin):
             f"Currently, there are {highlight(len(CHAT_COMMANDS.keys()), Fore.YELLOW)} commands loaded,",
             f"split across {highlight(len(plugin_manager.PLUGINS))} total plugins.",
             "[dash]",
-            f"You are currently logged into UID {highlight(os.getuid(), Fore.GREEN)}",
             f"Aliases: {highlight(len(ALIASES), Fore.MAGENTA)}",
             f"Sandbox mode: {highlight('ON', Fore.GREEN) if api.CONFIGURATION.sandboxed else highlight('OFF', Fore.RED)}",
             f"Uptime: {highlight(fmt_time(runtime))}",
@@ -66,7 +65,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
         ctx.output.write("\n".join(real_lines))
 
     @chat_command("help", description="Gets command info",example="help ls")
-    def help(self,ctx, cmd:str = ""):
+    def help(self,ctx, cmd:str = "", full:bool = False):
         if cmd is None:
             ctx.output.write("[[blue]][[bold]]ALL COMMANDS")
             ctx.output.write(f"Total:  {len(CHAT_COMMANDS.keys())}")
@@ -102,7 +101,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
                         prmp += ", "
                 de= [
                    f"\t[[red]][[bold]]{details["command"]}: [[reset]][[yellow]]{prmp}[[reset]]",
-                   f"\t\t[[blue]]{details["description"]}[[reset]]",
+                   f"\t\t[[blue]]{details["description"]}[[reset]]" if full else "",
                    f"\t\t[[green]]Usage: '{details["example"]}[[green]]'[[reset]]",
                    f"\t\t[[yellow]]{"[SANDBOXED]" if details["sandboxed"] else ""}[[cyan]]{"[DEBUG]" if details["debug"] else ""}",
                 ]
@@ -150,7 +149,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
     @chat_command("echo", description="Echos text into output.", example="echo hello, world!")
     def echo(self,ctx: CommandContext): #bad example lol
         fixed = ctx.full_command.lstrip("echo").lstrip()
-        ctx.output.write(fixed)
+        ctx.output.write(fixed,end="")
         
 
     @chat_command("wait", description="Waits for n seconds.", example="wait 10", required_args=1)
@@ -171,7 +170,7 @@ class Plugin(printdb.base_plugin.BasePlugin):
             lines = input.splitlines()
         elif ctx.input.read() != "":
             lines = ctx.input.read().splitlines()
-        
+
         results = 0
         for line in lines:
             if pattern in line:

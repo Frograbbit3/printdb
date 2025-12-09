@@ -6,6 +6,7 @@ import colorama
 import printdb.ctx
 import printdb.configuration
 import printdb.plugin_manager
+from printdb.base_plugin import BasePlugin,PluginMeta
 import printdb.utils as utils
 import shutil,subprocess,re
 import inspect
@@ -18,9 +19,10 @@ USE_DEBUG_MODE = True # allows debug-only commands to exist
 CURRENT_PATH: str = os.getcwd()
 ALIASES: dict[str,str] = {}
 CONFIGURATION = None
-SANDBOXED_MODE = True
+SANDBOXED_MODE = False
 RAW_COMMANDS: list[str] = []
 START_TIME: int = 0
+GhostPlugin = BasePlugin()
 
 def fix_args(args)->list[str]:
     global PREVIOUS_LOGS
@@ -112,7 +114,7 @@ def get_plugin_from_command(func):
     for p in printdb.plugin_manager.get_plugins():
         if p.__module__ == func["module"]:    
             return p
-    return None    
+    return GhostPlugin
 
 def save_configuration():
     global CONFIGURATION
@@ -232,12 +234,12 @@ def split_file_names(full_command: str):
     else:
         return (full_command, None, None)
     
-def send_chat_command(command:str, append=False):
+def send_chat_command(command:str, silent:bool = False):
     global CONFIGURATION
     full_command = command
     CONFIGURATION.command_history.append(command)
-    command, file_name, mode =split_file_names(command)
     command, args = utils.tokenize_args(command)
+    command, file_name, mode =split_file_names(command)
     for alias,cmd2 in ALIASES.items():
         if command == alias:
             command, new_args = utils.tokenize_args(cmd2)
@@ -254,7 +256,7 @@ def send_chat_command(command:str, append=False):
         elif i < len(pipes)-1:
             command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True,full_command=full_command)
         else:
-            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=True,output=file_name, append=(mode == "append"),full_command=full_command) 
+            command_output = call_chat_command(cd,args=ags,input=command_output,mask_input=False,output=file_name, append=(mode == "append"),full_command=full_command) 
         
 
 def call_chat_command(command: str, args=[], append=False, input=None, mask_input=False, output = None, full_command=None):
@@ -279,7 +281,7 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                     except KeyboardInterrupt:
                          return
                 return
-
+    command = re.compile(r'\x1b\[[0-9;]*m').sub("", command)
     for cmd,v in CHAT_COMMANDS.items():
         if cmd != command:
             continue
@@ -296,34 +298,34 @@ def call_chat_command(command: str, args=[], append=False, input=None, mask_inpu
                 except Exception as e:
                     error(e)
                     return ""
-                
                 if input is not None:
                     context.input.write(input,end="")
                 plugin = get_plugin_from_command(v)
-                
-                if mask_input:
-                    context.output.start_redirect(None, "w")
-
-                if output is not None:
+                if output is not None or mask_input:
+                    context.output.flush_enabled = False
+                if output is not None :
                     context.output.start_redirect( os.path.join(os.getcwd(), output),"w" if not append else "a")
 
                 try:
                     sig = inspect.signature(v["function"])
                     params = list(sig.parameters.values())
                     if len(params) < 3:
-                        v["function"](plugin, context)
+                        out = v["function"](plugin, context)
                     else:
-                        v["function"](plugin, context, *context.typed_args)
+                        out = v["function"](plugin, context, *context.typed_args)
                 except KeyboardInterrupt:
                     pass
-                if output is not None or mask_input:
+                if output is not None and not mask_input:
                     context.output.stop_redirect()
 
                 
             except Exception as e:
                 context.output.write(highlight(trace_error(v, e)))
                 return None
-            return context.output.read()
+            if context.output.read() == "":
+                return out
+            else:
+                return context.output.read()
 
     error("Command", command, "not found!")
     return None

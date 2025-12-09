@@ -2,7 +2,6 @@
 import printdb, shlex
 IS_RUNNING = True
 IS_TYPING = False
-
 printdb.init()
 printdb.api.send_chat_command("welcome")
 while IS_RUNNING:
@@ -13,7 +12,9 @@ while IS_RUNNING:
         args = shlex.split(command)
 
         if len(args) > 0:
-            printdb.api.send_chat_command(command)
+            v = printdb.api.send_chat_command(command)
+            if v is not None and v != "":
+                print(v)
 
     except KeyboardInterrupt:
         if IS_TYPING:
